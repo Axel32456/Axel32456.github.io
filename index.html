@@ -153,13 +153,19 @@
       .qty-control button {
         width:28px; height:28px; font-size:16px;
       }
+      .titulo-seccion {
+        text-align: left;
+        margin-left: 20px; /* o el espacio que quieras */
+        font-size: 24px;
+        font-weight: bold;
+      }
     }
   </style>
 </head>
-<body>
+<body id="inicio">
 
   <header>
-    <h1>Burgendon</h1>
+    <h1><a href="#inicio" style="text-decoration: none; color: inherit;">Burgendon</a></h1>
     <nav class="sections">
       <a href="#tasty">Tasty</a>
       <a href="#cheese-burger">Cheese Burger</a>
@@ -175,16 +181,37 @@
     <input id="search-input" type="text" placeholder="🔍 Buscar hamburguesa..." />
   </div>
 
-  <!-- Galería -->
-  <div class="menu" id="menu">
+  <section>
+    <h2 class="titulo-seccion">🍔 Tasty</h2>
+    <div class="menu" id="menu">
     <!-- 1: Tasty (Clásica) -->
-    <div class="item" id="tasty"
+      <div class="item" id="tasty"
          data-name="Clásica" data-price="1500"
          data-desc="Lechuga fresca, tomate y cheddar derretido."
          data-ingredients="Lechuga, tomate, queso cheddar, pan artesanal.">
-      <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80" alt="Clásica">
-      <p><strong>Clásica</strong><br>Lechuga, tomate y cheddar.</p>
-      <strong>$1500</strong>
+        <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80" alt="Clásica">
+       <p><strong>Clásica</strong><br>Lechuga, tomate y cheddar.</p>
+        <strong>$1500</strong>
+        <button class="ver-mas-btn">Ver más</button>
+        <div class="more-info">
+          <p><strong>Descripción:</strong> <span class="desc"></span></p>
+          <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
+          <div class="qty-control">
+           <button class="qty-minus">-</button>
+            <span class="qty-value">1</span>
+           <button class="qty-plus">+</button>
+         </div>
+         <button class="add-to-cart-btn">Añadir al carrito</button>
+       </div>
+     </div>
+    <!-- 2: Cheese Burger -->
+    <div class="item" id="cheese-burger"
+         data-name="Cheese Burger" data-price="1950"
+         data-desc="Queso cheddar extra y doble carne."
+         data-ingredients="Carne, cheddar, queso extra, pan artesanal.">
+      <img src="Hamburguesa Doble">
+      <p><strong>Cheese Burger</strong><br>Doble queso cheddar.</p>
+      <strong>$1950</strong>
       <button class="ver-mas-btn">Ver más</button>
       <div class="more-info">
         <p><strong>Descripción:</strong> <span class="desc"></span></p>
@@ -197,6 +224,71 @@
         <button class="add-to-cart-btn">Añadir al carrito</button>
       </div>
     </div>
+    <!-- 3: Cheese Bacon -->
+    <div class="item" id="cheese-bacon"
+         data-name="Cheese Bacon" data-price="2200"
+         data-desc="Tocino crujiente y doble queso."
+         data-ingredients="Carne, bacon, doble cheddar, pan artesanal.">
+      <img src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80" alt="Cheese Bacon">
+      <p><strong>Cheese Bacon</strong><br>Bacon crujiente y cheddar.</p>
+      <strong>$2200</strong>
+      <button class="ver-mas-btn">Ver más</button>
+      <div class="more-info">
+        <p><strong>Descripción:</strong> <span class="desc"></span></p>
+        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
+        <div class="qty-control">
+          <button class="qty-minus">-</button>
+          <span class="qty-value">1</span>
+          <button class="qty-plus">+</button>
+        </div>
+        <button class="add-to-cart-btn">Añadir al carrito</button>
+      </div>
+    </div>
+    <!-- 4: Americana -->
+    <div class="item" id="americana"
+         data-name="Americana" data-price="1900"
+         data-desc="Sabores clásicos de Estados Unidos."
+         data-ingredients="Carne, lechuga, tomate, pepinillos.">
+      <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" alt="Americana">
+      <p><strong>Americana</strong><br>Clásica con pepinillos.</p>
+      <strong>$1900</strong>
+      <button class="ver-mas-btn">Ver más</button>
+      <div class="more-info">
+        <p><strong>Descripción:</strong> <span class="desc"></span></p>
+        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
+        <div class="qty-control">
+          <button class="qty-minus">-</button>
+          <span class="qty-value">1</span>
+          <button class="qty-plus">+</button>
+        </div>
+        <button class="add-to-cart-btn">Añadir al carrito</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="titulo-seccion">🍔 Cheese Burger</h2>
+    <div class="menu" id="menu">
+    <!-- 1: Tasty (Clásica) -->
+      <div class="item" id="tasty"
+         data-name="Clásica" data-price="1500"
+         data-desc="Lechuga fresca, tomate y cheddar derretido."
+         data-ingredients="Lechuga, tomate, queso cheddar, pan artesanal.">
+        <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80" alt="Clásica">
+       <p><strong>Clásica</strong><br>Lechuga, tomate y cheddar.</p>
+        <strong>$1500</strong>
+        <button class="ver-mas-btn">Ver más</button>
+        <div class="more-info">
+          <p><strong>Descripción:</strong> <span class="desc"></span></p>
+          <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
+          <div class="qty-control">
+           <button class="qty-minus">-</button>
+            <span class="qty-value">1</span>
+           <button class="qty-plus">+</button>
+         </div>
+         <button class="add-to-cart-btn">Añadir al carrito</button>
+       </div>
+     </div>
     <!-- 2: Cheese Burger -->
     <div class="item" id="cheese-burger"
          data-name="Cheese Burger" data-price="1950"
@@ -257,127 +349,7 @@
         <button class="add-to-cart-btn">Añadir al carrito</button>
       </div>
     </div>
-    <!-- 5: Homenaje -->
-    <div class="item" id="homenaje"
-         data-name="Homenaje" data-price="2300"
-         data-desc="Edición especial con toques gourmet."
-         data-ingredients="Carne wagyu, rúcula, queso de cabra.">
-      <img src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80" alt="Homenaje">
-      <p><strong>Homenaje</strong><br>Wagyu y queso de cabra.</p>
-      <strong>$2300</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
-    <!-- 6: Burgerdon -->
-    <div class="item" id="burgerdon"
-         data-name="Burgerdon" data-price="2500"
-         data-desc="Nuestra creación insignia con 3 carnes."
-         data-ingredients="Triple carne, triple queso, salsas secretas.">
-      <img src="https://images.unsplash.com/photo-1598515217142-1a8f24f15265?auto=format&fit=crop&w=400&q=80" alt="Burgerdon">
-      <p><strong>Burgerdon</strong><br>Triple carne y salsas.</p>
-      <strong>$2500</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
-    <!-- 7: BBQ Smoke -->
-    <div class="item"
-         data-name="BBQ Smoke" data-price="2000"
-         data-desc="Salsa barbacoa ahumada y cebolla caramelizada."
-         data-ingredients="Salsa BBQ, carne, cebolla caramelizada.">
-      <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80" alt="BBQ Smoke">
-      <p><strong>BBQ Smoke</strong><br>Salsa BBQ ahumada.</p>
-      <strong>$2000</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
-    <!-- 8: Spicy Hot -->
-    <div class="item"
-         data-name="Spicy Hot" data-price="1750"
-         data-desc="Tocante picante con jalapeños y chile."
-         data-ingredients="Carne, jalapeños, chile en polvo, pan.">
-      <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" alt="Spicy Hot">
-      <p><strong>Spicy Hot</strong><br>Chile, jalapeños y picante.</p>
-      <strong>$1750</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
-    <!-- 9: Hawaiana -->
-    <div class="item"
-         data-name="Hawaiana" data-price="1850"
-         data-desc="Piña dulce, jamón y queso fundido."
-         data-ingredients="Piña, jamón, queso, pan artesanal.">
-      <img src="https://images.unsplash.com/photo-1598515217142-1a8f24f15265?auto=format&fit=crop&w=400&q=80" alt="Hawaiana">
-      <p><strong>Hawaiana</strong><br>Piña, jamón y queso.</p>
-      <strong>$1850</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
-    <!-- 10: Blue Cheese -->
-    <div class="item"
-         data-name="Blue Cheese" data-price="2200"
-         data-desc="Tocino y salsa de queso azul cremoso."
-         data-ingredients="Carne, queso azul, tocino, pan artesanal.">
-      <img src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80" alt="Blue Cheese">
-      <p><strong>Blue Cheese</strong><br>Queso azul y tocino.</p>
-      <strong>$2200</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
-  </div>
+  </section>
 
   <!-- Carrito -->
   <button class="cart-icon" onclick="toggleTicket()">🛒<span id="cart-count">0</span></button>
@@ -413,7 +385,9 @@
     <label><input type="checkbox" name="aderezo" value="Mayonesa"> Mayonesa</label>
     <label><input type="checkbox" name="aderezo" value="Ketchup"> Ketchup</label>
     <label><input type="checkbox" name="aderezo" value="Mostaza"> Mostaza</label>
-    <button onclick="enviarPedido()">Confirmar Pedido</button>
+    <button onclick="enviarPedido()">Confirmar pedido</button>
+
+</div>
   </div>
 
   <!-- Ticket final imprimible -->
@@ -522,44 +496,48 @@
       ticket.style.display="block";
       if(window.innerWidth<=600) ticket.scrollIntoView({behavior:"smooth"});
     }
-    function enviarPedido(){
-      const n = document.getElementById("nombre").value.trim();
-      const d = document.getElementById("direccion").value.trim();
-      const c = document.getElementById("calles").value.trim();
-      const pago = pagoSelect.value;
-      const aclar = document.getElementById("aclaraciones").value.trim();
-      const aderezos = Array.from(
-        document.querySelectorAll('input[name="aderezo"]:checked')
-      ).map(i=>i.value).join(", ")||"Ninguno";
-      if(!n||!d||!c) return alert("Completa Nombre, Dirección y Entre calles.");
-      document.getElementById("final-nombre").textContent=n;
-      document.getElementById("final-direccion").textContent=d;
-      document.getElementById("final-calles").textContent=c;
-      document.getElementById("final-pago").textContent=pago;
-      document.getElementById("final-aclaraciones").textContent=aclar||"Ninguna";
-      document.getElementById("final-aderezos").textContent=aderezos;
-      const ul = document.getElementById("final-pedido");
-      ul.innerHTML="";
-      let tot=0;
-      pedido.forEach(p=>{
-        tot += p.precio*p.qty;
-        const li = document.createElement("li");
-        li.textContent=`${p.nombre} x${p.qty} — $${p.precio*p.qty}`;
-        ul.appendChild(li);
-      });
-      document.getElementById("final-total").textContent=`Total: $${tot}`;
-      document.body.innerHTML = ticketFinal.outerHTML;
-      window.print();
-      location.reload();
-    }
-    searchInput.addEventListener("input",()=>{
-      const t=searchInput.value.toLowerCase();
-      Array.from(menu.children).forEach(it=>{
-        it.classList.toggle("hidden",
-          !it.querySelector("p").textContent.toLowerCase().includes(t)
-        );
-      });
-    });
-  </script>
+function enviarPedido() {
+  const n = document.getElementById("nombre").value.trim();
+  const d = document.getElementById("direccion").value.trim();
+  const c = document.getElementById("calles").value.trim();
+  const pago = pagoSelect.value;
+  const aclar = document.getElementById("aclaraciones").value.trim();
+  const aderezos = Array.from(
+    document.querySelectorAll('input[name="aderezo"]:checked')
+  ).map(i => i.value).join(", ") || "Ninguno";
+
+  if (!n || !d || !c) return alert("Completa Nombre, Dirección y Entre calles.");
+
+  document.getElementById("final-nombre").textContent = n;
+  document.getElementById("final-direccion").textContent = d;
+  document.getElementById("final-calles").textContent = c;
+  document.getElementById("final-pago").textContent = pago;
+  document.getElementById("final-aclaraciones").textContent = aclar || "Ninguna";
+  document.getElementById("final-aderezos").textContent = aderezos;
+
+  const ul = document.getElementById("final-pedido");
+  ul.innerHTML = "";
+  let tot = 0;
+  pedido.forEach(p => {
+    tot += p.precio * p.qty;
+    const li = document.createElement("li");
+    li.textContent = `${p.nombre} x${p.qty} — $${p.precio * p.qty}`;
+    ul.appendChild(li);
+  });
+  document.getElementById("final-total").textContent = `Total: $${tot}`;
+
+  // Mostrar solo el ticket final y preparar para impresión
+  document.body.innerHTML = ticketFinal.outerHTML;
+
+  // Esperar que se renderice el contenido antes de imprimir
+  setTimeout(() => {
+    window.print();
+    location.reload(); // Recargar para volver al inicio
+  }, 500);
+}
+
+</script>
+
+</script>
 </body>
 </html>
