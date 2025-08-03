@@ -167,9 +167,9 @@
   <header>
     <h1><a href="#inicio" style="text-decoration: none; color: inherit;">Burgendon</a></h1>
     <nav class="sections">
-      <a href="#tasty">Tasty</a>
-      <a href="#cheese-burger">Cheese Burger</a>
-      <a href="#cheese-bacon">Cheese Bacon</a>
+      <a href="#tasty-sec">Tasty</a>
+      <a href="#cheese-burger-sec">Cheese Burger</a>
+      <a href="#cheese-bacon-sec">Cheese Bacon</a>
       <a href="#americana">Americana</a>
       <a href="#homenaje">Homenaje</a>
       <a href="#burgerdon">Burgerdon</a>
@@ -181,7 +181,7 @@
     <input id="search-input" type="text" placeholder="🔍 Buscar hamburguesa..." />
   </div>
 
-  <section>
+  <section id="tasty-sec">
     <h2 class="titulo-seccion">🍔 Tasty</h2>
     <div class="menu" id="menu">
     <!-- 1: Tasty (Clásica) -->
@@ -205,7 +205,7 @@
        </div>
      </div>
     <!-- 2: Cheese Burger -->
-    <div class="item" id="cheese-burger"
+    <div class="item"id="cheese-burger"
          data-name="Cheese Burger" data-price="1950"
          data-desc="Queso cheddar extra y doble carne."
          data-ingredients="Carne, cheddar, queso extra, pan artesanal.">
@@ -266,7 +266,7 @@
     </div>
   </section>
 
-  <section>
+  <section id="cheese-burger-sec">
     <h2 class="titulo-seccion">🍔 Cheese Burger</h2>
     <div class="menu" id="menu">
     <!-- 1: Tasty (Clásica) -->
@@ -294,7 +294,7 @@
          data-name="Cheese Burger" data-price="1950"
          data-desc="Queso cheddar extra y doble carne."
          data-ingredients="Carne, cheddar, queso extra, pan artesanal.">
-      <img src="https://images.unsplash.com/photo-1598515217142-1a8f24f15265?auto=format&fit=crop&w=400&q=80" alt="Cheese Burger">
+      <img src="Hamburguesa Doble.png" alt="Cheese Burger">
       <p><strong>Cheese Burger</strong><br>Doble queso cheddar.</p>
       <strong>$1950</strong>
       <button class="ver-mas-btn">Ver más</button>
@@ -351,6 +351,90 @@
     </div>
   </section>
 
+<section id="cheese-bacon-sec">
+    <h2 class="titulo-seccion">🍔 Cheese Bacon</h2>
+    <div class="menu" id="menu">
+    <!-- 1: Tasty (Clásica) -->
+      <div class="item" id="tasty"
+         data-name="Clásica" data-price="1500"
+         data-desc="Lechuga fresca, tomate y cheddar derretido."
+         data-ingredients="Lechuga, tomate, queso cheddar, pan artesanal.">
+        <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80" alt="Clásica">
+       <p><strong>Clásica</strong><br>Lechuga, tomate y cheddar.</p>
+        <strong>$1500</strong>
+        <button class="ver-mas-btn">Ver más</button>
+        <div class="more-info">
+          <p><strong>Descripción:</strong> <span class="desc"></span></p>
+          <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
+          <div class="qty-control">
+           <button class="qty-minus">-</button>
+            <span class="qty-value">1</span>
+           <button class="qty-plus">+</button>
+         </div>
+         <button class="add-to-cart-btn">Añadir al carrito</button>
+       </div>
+     </div>
+    <!-- 2: Cheese Burger -->
+    <div class="item" id="cheese-burger"
+         data-name="Cheese Burger" data-price="1950"
+         data-desc="Queso cheddar extra y doble carne."
+         data-ingredients="Carne, cheddar, queso extra, pan artesanal.">
+      <img src="Hamburguesa Doble.png" alt="Cheese Burger">
+      <p><strong>Cheese Burger</strong><br>Doble queso cheddar.</p>
+      <strong>$1950</strong>
+      <button class="ver-mas-btn">Ver más</button>
+      <div class="more-info">
+        <p><strong>Descripción:</strong> <span class="desc"></span></p>
+        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
+        <div class="qty-control">
+          <button class="qty-minus">-</button>
+          <span class="qty-value">1</span>
+          <button class="qty-plus">+</button>
+        </div>
+        <button class="add-to-cart-btn">Añadir al carrito</button>
+      </div>
+    </div>
+    <!-- 3: Cheese Bacon -->
+    <div class="item" id="cheese-bacon"
+         data-name="Cheese Bacon" data-price="2200"
+         data-desc="Tocino crujiente y doble queso."
+         data-ingredients="Carne, bacon, doble cheddar, pan artesanal.">
+      <img src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80" alt="Cheese Bacon">
+      <p><strong>Cheese Bacon</strong><br>Bacon crujiente y cheddar.</p>
+      <strong>$2200</strong>
+      <button class="ver-mas-btn">Ver más</button>
+      <div class="more-info">
+        <p><strong>Descripción:</strong> <span class="desc"></span></p>
+        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
+        <div class="qty-control">
+          <button class="qty-minus">-</button>
+          <span class="qty-value">1</span>
+          <button class="qty-plus">+</button>
+        </div>
+        <button class="add-to-cart-btn">Añadir al carrito</button>
+      </div>
+    </div>
+    <!-- 4: Americana -->
+    <div class="item" id="americana"
+         data-name="Americana" data-price="1900"
+         data-desc="Sabores clásicos de Estados Unidos."
+         data-ingredients="Carne, lechuga, tomate, pepinillos.">
+      <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" alt="Americana">
+      <p><strong>Americana</strong><br>Clásica con pepinillos.</p>
+      <strong>$1900</strong>
+      <button class="ver-mas-btn">Ver más</button>
+      <div class="more-info">
+        <p><strong>Descripción:</strong> <span class="desc"></span></p>
+        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
+        <div class="qty-control">
+          <button class="qty-minus">-</button>
+          <span class="qty-value">1</span>
+          <button class="qty-plus">+</button>
+        </div>
+        <button class="add-to-cart-btn">Añadir al carrito</button>
+      </div>
+    </div>
+  </section>
   <!-- Carrito -->
   <button class="cart-icon" onclick="toggleTicket()">🛒<span id="cart-count">0</span></button>
 
