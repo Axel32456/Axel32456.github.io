@@ -581,44 +581,38 @@
       if(window.innerWidth<=600) ticket.scrollIntoView({behavior:"smooth"});
     }
 function enviarPedido() {
-  const n = document.getElementById("nombre").value.trim();
-  const d = document.getElementById("direccion").value.trim();
-  const c = document.getElementById("calles").value.trim();
-  const pago = pagoSelect.value;
-  const aclar = document.getElementById("aclaraciones").value.trim();
-  const aderezos = Array.from(
-    document.querySelectorAll('input[name="aderezo"]:checked')
-  ).map(i => i.value).join(", ") || "Ninguno";
+      const n = document.getElementById("nombre").value.trim();
+      const d = document.getElementById("direccion").value.trim();
+      const c = document.getElementById("calles").value.trim();
+      const pago = pagoSelect.value;
+      const aclar = document.getElementById("aclaraciones").value.trim();
+      const aderezos = Array.from(
+        document.querySelectorAll('input[name="aderezo"]:checked')
+      ).map(i => i.value).join(", ") || "Ninguno";
 
-  if (!n || !d || !c) return alert("Completa Nombre, Dirección y Entre calles.");
+      if (!n || !d || !c) return alert("Completa Nombre, Dirección y Entre calles.");
 
-  document.getElementById("final-nombre").textContent = n;
-  document.getElementById("final-direccion").textContent = d;
-  document.getElementById("final-calles").textContent = c;
-  document.getElementById("final-pago").textContent = pago;
-  document.getElementById("final-aclaraciones").textContent = aclar || "Ninguna";
-  document.getElementById("final-aderezos").textContent = aderezos;
+      // Armar mensaje para WhatsApp
+      let mensaje = `*Pedido Burgendon*%0A`;
+      mensaje += `*Cliente:* ${n}%0A`;
+      mensaje += `*Dirección:* ${d}%0A`;
+      mensaje += `*Entre calles:* ${c}%0A`;
+      mensaje += `*Pago:* ${pago}%0A`;
+      mensaje += `*Aclaraciones:* ${aclar || 'Ninguna'}%0A`;
+      mensaje += `*Aderezos:* ${aderezos}%0A`;
+      mensaje += `%0A*Detalles del pedido*%0A`;
+      let total = 0;
+      pedido.forEach(p => {
+        mensaje += `${p.nombre} x${p.qty} — $${p.precio * p.qty}%0A`;
+        total += p.precio * p.qty;
+      });
+      mensaje += `%0A*Total:* $${total}`;
 
-  const ul = document.getElementById("final-pedido");
-  ul.innerHTML = "";
-  let tot = 0;
-  pedido.forEach(p => {
-    tot += p.precio * p.qty;
-    const li = document.createElement("li");
-    li.textContent = `${p.nombre} x${p.qty} — $${p.precio * p.qty}`;
-    ul.appendChild(li);
-  });
-  document.getElementById("final-total").textContent = `Total: $${tot}`;
-
-  // Mostrar solo el ticket final y preparar para impresión
-  document.body.innerHTML = ticketFinal.outerHTML;
-
-  // Esperar que se renderice el contenido antes de imprimir
-  setTimeout(() => {
-    window.print();
-    location.reload(); // Recargar para volver al inicio
-  }, 500);
-}
+      // Número de WhatsApp (con código de país, sin símbolos)
+      const numeroWhatsApp = '5491127063086';
+      const url = `https://wa.me/${numeroWhatsApp}?text=${mensaje}`;
+      window.open(url, '_blank');
+    }
 
 </script>
 
