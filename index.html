@@ -88,6 +88,16 @@
       width:20px; height:20px; font-size:12px;
       display:flex; align-items:center; justify-content:center;
     }
+       .home-icon {
+      position:fixed; bottom:90px; right:20px;
+      background:#2a9d8f; color:#fff; border:none;
+      border-radius:50%; width:60px; height:60px;
+      font-size:20px; cursor:pointer; z-index:1001;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .home-icon:hover {
+      background:#21867a;
+    }
 
     #ticket, #formulario, #ticket-final {
       display:none; position:fixed; bottom:90px; right:20px;
@@ -178,6 +188,7 @@
 
   <!-- Buscador -->
   <div id="search-container">
+    <button class="home-icon" onclick="location.href='#inicio'">🏠</button>
     <input id="search-input" type="text" placeholder="🔍 Buscar hamburguesa..." />
   </div>
 
@@ -488,133 +499,135 @@
     <p id="final-total" style="font-weight:bold;"></p>
   </div>
 
-  <script>
-    let pedido = [];
-    const cartCount = document.getElementById("cart-count");
-    const ticket = document.getElementById("ticket");
-    const lista = document.getElementById("pedido-lista");
-    const totalDiv = document.getElementById("total");
-    const formulario = document.getElementById("formulario");
-    const ticketFinal = document.getElementById("ticket-final");
-    const searchInput = document.getElementById("search-input");
-    const menu = document.getElementById("menu");
-    const pagoSelect = document.getElementById("pago");
-    const aliasContainer = document.getElementById("alias-container");
+ <script>
+  let pedido = [];
+  const cartCount = document.getElementById("cart-count");
+  const ticket = document.getElementById("ticket");
+  const lista = document.getElementById("pedido-lista");
+  const totalDiv = document.getElementById("total");
+  const formulario = document.getElementById("formulario");
+  const pagoSelect = document.getElementById("pago");
 
-    pagoSelect.addEventListener("change", ()=>{
-      aliasContainer.style.display = pagoSelect.value==="Transferencia" ? "block" : "none";
-    });
+  pagoSelect.addEventListener("change", () => {
+    document.getElementById("alias-container").style.display =
+      pagoSelect.value === "Transferencia" ? "block" : "none";
+  });
 
-    document.querySelectorAll('.item').forEach(item=>{
-      item.querySelector('.desc').textContent = item.dataset.desc;
-      item.querySelector('.ingredients').textContent = item.dataset.ingredients;
-    });
-
-    menu.addEventListener("click", e=>{
-      if(e.target.classList.contains("ver-mas-btn")){
-        const item = e.target.closest(".item");
-        const mi = item.querySelector(".more-info");
-        document.querySelectorAll(".more-info").forEach(div=>{
-          if(div!==mi) div.style.display="none";
+  // Aplicar listener a cada menú
+  document.querySelectorAll('.menu').forEach(menu => {
+    menu.addEventListener('click', e => {
+      // Mostrar / ocultar detalles ("Ver más")
+      if (e.target.classList.contains('ver-mas-btn')) {
+        const item = e.target.closest('.item');
+        const mi = item.querySelector('.more-info');
+        document.querySelectorAll('.more-info').forEach(div => {
+          if (div !== mi) div.style.display = 'none';
         });
-        mi.style.display = mi.style.display==="block" ? "none" : "block";
-        mi.querySelector(".qty-value").textContent="1";
+        mi.style.display = mi.style.display === 'block' ? 'none' : 'block';
+        mi.querySelector('.qty-value').textContent = '1';
       }
-      if(e.target.classList.contains("qty-plus")||e.target.classList.contains("qty-minus")){
+
+      // Control de cantidad (+ / –)
+      if (e.target.classList.contains('qty-plus') || e.target.classList.contains('qty-minus')) {
         const ctrl = e.target.parentElement;
-        const valEl = ctrl.querySelector(".qty-value");
-        let v = parseInt(valEl.textContent);
-        if(e.target.classList.contains("qty-plus")) v++;
-        else if(v>1) v--;
+        const valEl = ctrl.querySelector('.qty-value');
+        let v = parseInt(valEl.textContent, 10);
+        if (e.target.classList.contains('qty-plus')) v++;
+        else if (v > 1) v--;
         valEl.textContent = v;
       }
-      if(e.target.classList.contains("add-to-cart-btn")){
-        const item = e.target.closest(".item");
-        const name = item.dataset.name;
-        const price = +item.dataset.price;
-        const qty = +item.querySelector(".qty-value").textContent;
-        let entry = pedido.find(p=>p.nombre===name);
-        if(!entry){
-          entry = { nombre:name, precio:price, qty:0 };
+
+      // Añadir al carrito
+      if (e.target.classList.contains('add-to-cart-btn')) {
+        const item = e.target.closest('.item');
+        const nombre = item.dataset.name;
+        const precio = +item.dataset.price;
+        const qty = +item.querySelector('.qty-value').textContent;
+        let entry = pedido.find(p => p.nombre === nombre);
+        if (!entry) {
+          entry = { nombre, precio, qty: 0 };
           pedido.push(entry);
         }
         entry.qty += qty;
         updateCartDisplay();
-        item.querySelector(".more-info").style.display="none";
-        alert(`Añadiste ${qty} ${name}(s) al carrito.`);
+        item.querySelector('.more-info').style.display = 'none';
+        alert(`Añadiste ${qty} ${nombre}(s) al carrito.`);
       }
     });
+  });
 
-    function updateCartDisplay(){
-      cartCount.textContent = pedido.reduce((s,p)=>s+p.qty,0);
-      lista.innerHTML="";
-      let total=0;
-      pedido.forEach((p,i)=>{
-        total += p.precio*p.qty;
-        const li = document.createElement("li");
-        li.innerHTML = `${p.nombre} x${p.qty} — $${p.precio*p.qty}
-          <button class="remove-btn" onclick="removeFromCart(${i})">×</button>`;
-        lista.appendChild(li);
-      });
-      totalDiv.textContent = pedido.length?`Total: $${total}`:"";
-    }
-    function removeFromCart(i){
-      pedido.splice(i,1);
-      updateCartDisplay();
-    }
-    function toggleTicket(){
-      if(ticket.style.display==="block"){
-        ticket.style.display = formulario.style.display="none";
-      } else {
-        if(!pedido.length) return alert("El carrito está vacío.");
-        ticket.style.display="block";
-        if(window.innerWidth<=600) ticket.scrollIntoView({behavior:"smooth"});
-      }
-    }
-    function confirmarPedido(){
-      ticket.style.display="none";
-      formulario.style.display="block";
-    }
-    function volverAlTicket(){
-      formulario.style.display="none";
-      ticket.style.display="block";
-      if(window.innerWidth<=600) ticket.scrollIntoView({behavior:"smooth"});
-    }
-function enviarPedido() {
-      const n = document.getElementById("nombre").value.trim();
-      const d = document.getElementById("direccion").value.trim();
-      const c = document.getElementById("calles").value.trim();
-      const pago = pagoSelect.value;
-      const aclar = document.getElementById("aclaraciones").value.trim();
-      const aderezos = Array.from(
-        document.querySelectorAll('input[name="aderezo"]:checked')
-      ).map(i => i.value).join(", ") || "Ninguno";
+  function updateCartDisplay() {
+    cartCount.textContent = pedido.reduce((sum, p) => sum + p.qty, 0);
+    lista.innerHTML = '';
+    let total = 0;
+    pedido.forEach((p, i) => {
+      total += p.precio * p.qty;
+      const li = document.createElement('li');
+      li.innerHTML = `
+        ${p.nombre} x${p.qty} — $${p.precio * p.qty}
+        <button class="remove-btn" onclick="removeFromCart(${i})">×</button>
+      `;
+      lista.appendChild(li);
+    });
+    totalDiv.textContent = pedido.length ? `Total: $${total}` : '';
+  }
 
-      if (!n || !d || !c) return alert("Completa Nombre, Dirección y Entre calles.");
+  function removeFromCart(i) {
+    pedido.splice(i, 1);
+    updateCartDisplay();
+  }
 
-      // Armar mensaje para WhatsApp
-      let mensaje = `*Pedido Burgendon*%0A`;
-      mensaje += `*Cliente:* ${n}%0A`;
-      mensaje += `*Dirección:* ${d}%0A`;
-      mensaje += `*Entre calles:* ${c}%0A`;
-      mensaje += `*Pago:* ${pago}%0A`;
-      mensaje += `*Aclaraciones:* ${aclar || 'Ninguna'}%0A`;
-      mensaje += `*Aderezos:* ${aderezos}%0A`;
-      mensaje += `%0A*Detalles del pedido*%0A`;
-      let total = 0;
-      pedido.forEach(p => {
-        mensaje += `${p.nombre} x${p.qty} — $${p.precio * p.qty}%0A`;
-        total += p.precio * p.qty;
-      });
-      mensaje += `%0A*Total:* $${total}`;
-
-      // Número de WhatsApp (con código de país, sin símbolos)
-      const numeroWhatsApp = '5491127063086';
-      const url = `https://wa.me/${numeroWhatsApp}?text=${mensaje}`;
-      window.open(url, '_blank');
+  function toggleTicket() {
+    if (ticket.style.display === 'block') {
+      ticket.style.display = formulario.style.display = 'none';
+    } else {
+      if (!pedido.length) return alert('El carrito está vacío.');
+      ticket.style.display = 'block';
     }
+  }
 
+  function confirmarPedido() {
+    ticket.style.display = formulario.style.display = 'none';
+    formulario.style.display = 'block';
+  }
+
+  function volverAlTicket() {
+    formulario.style.display = ticket.style.display = 'block';
+  }
+
+  function enviarPedido() {
+    const n = document.getElementById('nombre').value.trim();
+    const d = document.getElementById('direccion').value.trim();
+    const c = document.getElementById('calles').value.trim();
+    const pago = pagoSelect.value;
+    const aclar = document.getElementById('aclaraciones').value.trim();
+    const aderezos = Array.from(
+      document.querySelectorAll('input[name="aderezo"]:checked')
+    ).map(i => i.value).join(', ') || 'Ninguno';
+
+    if (!n || !d || !c) return alert('Completa Nombre, Dirección y Entre calles.');
+
+    let mensaje = '*Pedido Burgendon*%0A';
+    mensaje += `*Cliente:* ${n}%0A`;
+    mensaje += `*Dirección:* ${d}%0A`;
+    mensaje += `*Entre calles:* ${c}%0A`;
+    mensaje += `*Pago:* ${pago}%0A`;
+    mensaje += `*Aclaraciones:* ${aclar || 'Ninguna'}%0A`;
+    mensaje += `*Aderezos:* ${aderezos}%0A%0A`;
+    mensaje += '*Detalles del pedido*%0A';
+    let total = 0;
+    pedido.forEach(p => {
+      mensaje += `${p.nombre} x${p.qty} — $${p.precio * p.qty}%0A`;
+      total += p.precio * p.qty;
+    });
+    mensaje += `%0A*Total:* $${total}`;
+
+    const numeroWhatsApp = '54911XXXXXXXX';  // tu número
+    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+    window.location.href = url;
+  }
 </script>
+
 
 </script>
 </body>
