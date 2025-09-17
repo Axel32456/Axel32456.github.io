@@ -3,16 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <title>Gestión Heladería</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f8f8f8; padding: 20px; }
-    h1, h2 { margin: 10px 0; }
-    section { background: white; padding: 15px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,.1); }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
-    th { background: #eee; }
-    input, select, button { margin: 4px 0; padding: 6px; }
-    button { cursor: pointer; }
-  </style>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 10px;
+    background: #f9f9f9;
+  }
+
+  h1, h2 {
+    text-align: center;
+  }
+
+  .container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .card {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+  }
+
+  button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    margin: 2px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  button:hover {
+    background: #45a049;
+  }
+
+  /* 📱 Versión móvil */
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column; /* apila los bloques */
+      align-items: stretch;
+    }
+
+    .card {
+      width: 100%;
+      max-width: none;
+    }
+
+    table, th, td {
+      font-size: 14px;
+    }
+
+    h1 { font-size: 22px; }
+    h2 { font-size: 18px; }
+  }
+</style>
+
 </head>
 <body>
   <h1>🍦 Gestión de Heladería</h1>
