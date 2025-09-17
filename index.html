@@ -2,85 +2,38 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestión Heladería</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 10px;
-    background: #f9f9f9;
-  }
+  <style>
+    body { font-family: Arial, sans-serif; background: #f8f8f8; padding: 10px; margin: 0; }
+    h1, h2 { margin: 10px 0; text-align: center; }
+    section { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,.1); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
+    th { background: #eee; }
+    input, select, button { margin: 4px 0; padding: 6px; width: 100%; box-sizing: border-box; }
+    button { cursor: pointer; }
 
-  h1, h2 {
-    text-align: center;
-  }
+    /* Contenedores flexibles para formularios */
+    .flex-container { display: flex; gap: 10px; flex-wrap: wrap; }
+    .flex-container > * { flex: 1 1 100px; }
 
-  .container {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .card {
-    flex: 1;
-    min-width: 300px;
-    max-width: 500px;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-  }
-
-  th, td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: center;
-  }
-
-  button {
-    background: #4CAF50;
-    color: white;
-    border: none;
-    padding: 6px 10px;
-    margin: 2px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-
-  button:hover {
-    background: #45a049;
-  }
-
-  /* 📱 Versión móvil */
-  @media (max-width: 768px) {
-    .container {
-      flex-direction: column; /* apila los bloques */
-      align-items: stretch;
+    /* Media query para pantallas pequeñas */
+    @media(max-width: 600px){
+      table, thead, tbody, th, td, tr { display: block; }
+      tr { margin-bottom: 10px; border-bottom: 2px solid #eee; }
+      td { text-align: right; padding-left: 50%; position: relative; }
+      td::before { 
+        content: attr(data-label); 
+        position: absolute; 
+        left: 10px; 
+        width: 45%; 
+        text-align: left; 
+        font-weight: bold;
+      }
+      th { display: none; }
     }
-
-    .card {
-      width: 100%;
-      max-width: none;
-    }
-
-    table, th, td {
-      font-size: 14px;
-    }
-
-    h1 { font-size: 22px; }
-    h2 { font-size: 18px; }
-  }
-</style>
-
+  </style>
 </head>
 <body>
   <h1>🍦 Gestión de Heladería</h1>
@@ -88,46 +41,47 @@
   <!-- Lista de productos -->
   <section>
     <h2>Productos</h2>
-    <table>
+    <table id="tablaProductos">
       <thead>
         <tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Acciones</th></tr>
       </thead>
-      <tbody id="tablaProductos"></tbody>
+      <tbody></tbody>
     </table>
   </section>
 
   <!-- Registrar venta -->
   <section>
     <h2>Registrar venta</h2>
-    <select id="ventaProducto"></select>
-    <input id="ventaCantidad" type="number" min="1" value="1">
-    <button onclick="registrarVenta()">Vender</button>
+    <div class="flex-container">
+      <select id="ventaProducto"></select>
+      <input id="ventaCantidad" type="number" min="1" value="1">
+      <button onclick="registrarVenta()">Vender</button>
+    </div>
   </section>
 
   <!-- Lista de ventas -->
   <section>
     <h2>Ventas</h2>
     <p id="resumen"></p>
-    <table>
+    <table id="tablaVentas">
       <thead>
         <tr><th>ID</th><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Total</th><th>Acciones</th></tr>
       </thead>
-      <tbody id="tablaVentas"></tbody>
+      <tbody></tbody>
     </table>
   </section>
 
 <script>
-  // Lista fija de helados
   const productosBase = [
-    {id:1, nombre:"Helados de agua", precio:100, stock:20},
-    {id:2, nombre:"Helados de crema", precio:150, stock:20},
-    {id:3, nombre:"Helado bonbom", precio:200, stock:15},
-    {id:4, nombre:"Helado bonbom crocante", precio:220, stock:15},
-    {id:5, nombre:"Pote 360", precio:250, stock:10},
-    {id:6, nombre:"Cono bola", precio:120, stock:25}
+    {id:1, nombre:"Helados de agua", precio:200, stock:20},
+    {id:2, nombre:"Helados de crema", precio:300, stock:20},
+    {id:3, nombre:"Helado bonbom", precio:700, stock:15},
+    {id:4, nombre:"Helado bonbom crocante", precio:800, stock:15},
+    {id:5, nombre:"Pote 360", precio:2000, stock:10},
+    {id:6, nombre:"Cono bola", precio:2000, stock:25}
   ];
 
-  let productos = JSON.parse(localStorage.getItem("helad_prod")) || productosBase;
+  let productos = productosBase; // Siempre cargar precios correctos
   let ventas = JSON.parse(localStorage.getItem("helad_ventas")) || [];
 
   function guardar() {
@@ -136,18 +90,21 @@
   }
 
   function renderProductos() {
-    const tbody = document.getElementById("tablaProductos");
+    const tbody = document.querySelector("#tablaProductos tbody");
     tbody.innerHTML = "";
     productos.forEach(p => {
       tbody.innerHTML += `<tr>
-        <td>${p.id}</td><td>${p.nombre}</td><td>$${p.precio}</td><td>${p.stock}</td>
-        <td>
+        <td data-label="ID">${p.id}</td>
+        <td data-label="Nombre">${p.nombre}</td>
+        <td data-label="Precio">$${p.precio}</td>
+        <td data-label="Stock">${p.stock}</td>
+        <td data-label="Acciones">
           <button onclick="ajustarStock(${p.id},1)">+1</button>
           <button onclick="ajustarStock(${p.id},-1)">-1</button>
         </td>
       </tr>`;
     });
-    // opciones en select de venta
+
     const sel = document.getElementById("ventaProducto");
     sel.innerHTML = "<option value=''>-- elegir --</option>";
     productos.forEach(p => {
@@ -156,22 +113,21 @@
   }
 
   function renderVentas() {
-    const tbody = document.getElementById("tablaVentas");
+    const tbody = document.querySelector("#tablaVentas tbody");
     tbody.innerHTML = "";
     let total = 0, items = 0;
     ventas.forEach(v => {
       total += v.total; items += v.cantidad;
       tbody.innerHTML += `<tr>
-        <td>${v.id}</td>
-        <td>${new Date(v.fecha).toLocaleString()}</td>
-        <td>${v.producto}</td>
-        <td>${v.cantidad}</td>
-        <td>$${v.total}</td>
-        <td><button onclick="eliminarVenta(${v.id})">Eliminar</button></td>
+        <td data-label="ID">${v.id}</td>
+        <td data-label="Fecha">${new Date(v.fecha).toLocaleString()}</td>
+        <td data-label="Producto">${v.producto}</td>
+        <td data-label="Cantidad">${v.cantidad}</td>
+        <td data-label="Total">$${v.total}</td>
+        <td data-label="Acciones"><button onclick="eliminarVenta(${v.id})">Eliminar</button></td>
       </tr>`;
     });
-    document.getElementById("resumen").innerText = 
-      `Ventas: ${ventas.length} | Ítems: ${items} | Total: $${total}`;
+    document.getElementById("resumen").innerText = `Ventas: ${ventas.length} | Ítems: ${items} | Total: $${total}`;
   }
 
   function ajustarStock(id, delta) {
@@ -195,7 +151,6 @@
   function eliminarVenta(id) {
     const v = ventas.find(x=>x.id===id);
     if (v && confirm("¿Eliminar venta?")) {
-      // restaurar stock
       const prod = productos.find(p=>p.nombre===v.producto);
       if (prod) prod.stock += v.cantidad;
       ventas = ventas.filter(x=>x.id!==id);
