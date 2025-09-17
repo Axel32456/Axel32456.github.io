@@ -14,7 +14,6 @@
     input, select, button { margin: 4px 0; padding: 6px; width: 100%; box-sizing: border-box; }
     button { cursor: pointer; }
 
-    /* Contenedores flexibles para formularios */
     .flex-container { display: flex; gap: 10px; flex-wrap: wrap; }
     .flex-container > * { flex: 1 1 100px; }
 
@@ -33,14 +32,26 @@
       }
       th { display: none; }
     }
+
+    /* Enlaces internos */
+    nav a { margin: 0 10px; color: #007BFF; text-decoration: none; font-weight: bold; }
+    nav a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <h1>🍦 Gestión de Heladería</h1>
 
+  <!-- Sub-encabezados / navegación -->
+  <nav>
+    <a href="#productos">Ir a Productos</a>
+    <a href="#venta">Registrar Venta</a>
+    <a href="#ventas">Ver Ventas</a>
+  </nav>
+
   <!-- Lista de productos -->
-  <section>
+  <section id="productos">
     <h2>Productos</h2>
+    <input type="text" id="buscador" placeholder="Buscar producto..." onkeyup="filtrarProductos()">
     <table id="tablaProductos">
       <thead>
         <tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Acciones</th></tr>
@@ -50,7 +61,7 @@
   </section>
 
   <!-- Registrar venta -->
-  <section>
+  <section id="venta">
     <h2>Registrar venta</h2>
     <div class="flex-container">
       <select id="ventaProducto"></select>
@@ -60,7 +71,7 @@
   </section>
 
   <!-- Lista de ventas -->
-  <section>
+  <section id="ventas">
     <h2>Ventas</h2>
     <p id="resumen"></p>
     <table id="tablaVentas">
@@ -81,7 +92,7 @@
     {id:6, nombre:"Cono bola", precio:2000, stock:25}
   ];
 
-  let productos = productosBase; // Siempre cargar precios correctos
+  let productos = productosBase; // siempre cargar precios correctos
   let ventas = JSON.parse(localStorage.getItem("helad_ventas")) || [];
 
   function guardar() {
@@ -89,10 +100,12 @@
     localStorage.setItem("helad_ventas", JSON.stringify(ventas));
   }
 
-  function renderProductos() {
+  function renderProductos(filtro = "") {
     const tbody = document.querySelector("#tablaProductos tbody");
     tbody.innerHTML = "";
-    productos.forEach(p => {
+    productos
+      .filter(p => p.nombre.toLowerCase().includes(filtro.toLowerCase()))
+      .forEach(p => {
       tbody.innerHTML += `<tr>
         <td data-label="ID">${p.id}</td>
         <td data-label="Nombre">${p.nombre}</td>
@@ -110,6 +123,11 @@
     productos.forEach(p => {
       sel.innerHTML += `<option value='${p.id}'>${p.nombre} (stock ${p.stock}) - $${p.precio}</option>`;
     });
+  }
+
+  function filtrarProductos() {
+    const filtro = document.getElementById("buscador").value;
+    renderProductos(filtro);
   }
 
   function renderVentas() {
@@ -132,7 +150,7 @@
 
   function ajustarStock(id, delta) {
     productos = productos.map(p=>p.id===id? {...p, stock: Math.max(0, p.stock+delta)} : p);
-    guardar(); renderProductos();
+    guardar(); renderProductos(document.getElementById("buscador").value);
   }
 
   function registrarVenta() {
@@ -145,7 +163,7 @@
     const total = prod.precio * cantidad;
     ventas.unshift({id, producto: prod.nombre, cantidad, total, fecha: new Date().toISOString()});
     prod.stock -= cantidad;
-    guardar(); renderProductos(); renderVentas();
+    guardar(); renderProductos(document.getElementById("buscador").value); renderVentas();
   }
 
   function eliminarVenta(id) {
@@ -154,7 +172,7 @@
       const prod = productos.find(p=>p.nombre===v.producto);
       if (prod) prod.stock += v.cantidad;
       ventas = ventas.filter(x=>x.id!==id);
-      guardar(); renderProductos(); renderVentas();
+      guardar(); renderProductos(document.getElementById("buscador").value); renderVentas();
     }
   }
 
