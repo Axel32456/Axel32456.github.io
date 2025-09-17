@@ -1,634 +1,142 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Burgendon</title>
+  <meta charset="UTF-8">
+  <title>Gestión Heladería</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #fff; }
-    header {
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      padding:10px 20px; background:#e63946; color:#fff;
-    }
-    header h1 { margin:0; font-size:24px; }
-    /* Barra de secciones */
-    nav.sections {
-      margin-top:10px;
-      display:flex; gap:10px; flex-wrap:wrap;
-    }
-    nav.sections a {
-      color:#fff; background:rgba(0,0,0,0.2); padding:6px 12px;
-      border-radius:4px; text-decoration:none; font-size:14px;
-      transition:background .2s;
-    }
-    nav.sections a:hover {
-      background:rgba(0,0,0,0.3);
-    }
-
-    #search-container { display:flex; justify-content:center; margin:15px 20px; }
-    #search-input {
-      width:100%; max-width:400px; padding:8px 12px; font-size:14px;
-      border:1px solid #ccc; border-radius:20px;
-    }
-
-    .menu {
-      display:flex; flex-wrap:wrap; justify-content:center;
-      padding:20px; gap:20px;
-    }
-    .item {
-      border:1px solid #ccc; padding:10px; width:200px;
-      text-align:center; border-radius:8px; background:#fff;
-      position:relative;
-    }
-    .item img {
-      width:100%; border-radius:8px; margin-bottom:8px;
-      height:120px; object-fit:cover;
-    }
-    .item p, .item strong { margin:8px 0; }
-    .item.hidden { display:none; }
-    .ver-mas-btn {
-      margin-top:10px; padding:8px 12px; background:#2a9d8f;
-      color:#fff; border:none; border-radius:5px;
-      cursor:pointer; width:100%; box-sizing:border-box; font-size:14px;
-    }
-    .more-info {
-      display:none; text-align:left; margin-top:10px;
-      background:#f0f0f0; border-radius:8px; padding:10px;
-      font-size:14px;
-    }
-    .more-info p { margin:6px 0; }
-    .qty-control {
-      display:flex; align-items:center; justify-content:center;
-      gap:10px; margin:10px 0;
-    }
-    .qty-control button {
-      background:#2a9d8f; color:#fff; border:none; border-radius:5px;
-      width:30px; height:30px; font-weight:bold; cursor:pointer;
-      font-size:18px; line-height:1;
-    }
-    .qty-value {
-      font-weight:bold; min-width:20px; text-align:center;
-      user-select:none;
-    }
-    .add-to-cart-btn {
-      background:#1d3557; color:#fff; border:none;
-      padding:8px 12px; border-radius:5px;
-      cursor:pointer; width:100%; box-sizing:border-box; font-size:14px;
-    }
-
-    .cart-icon {
-      position:fixed; bottom:20px; right:20px;
-      background:#264653; color:#fff; border:none;
-      border-radius:50%; width:60px; height:60px;
-      font-size:24px; cursor:pointer; z-index:1001;
-    }
-    .cart-icon span {
-      position:absolute; top:-5px; right:-5px;
-      background:red; color:#fff; border-radius:50%;
-      width:20px; height:20px; font-size:12px;
-      display:flex; align-items:center; justify-content:center;
-    }
-       .home-icon {
-      position:fixed; bottom:90px; right:20px;
-      background:#2a9d8f; color:#fff; border:none;
-      border-radius:50%; width:60px; height:60px;
-      font-size:20px; cursor:pointer; z-index:1001;
-      display:flex; align-items:center; justify-content:center;
-    }
-    .home-icon:hover {
-      background:#21867a;
-    }
-
-    #ticket, #formulario, #ticket-final {
-      display:none; position:fixed; bottom:90px; right:20px;
-      width:320px; max-height:500px; overflow-y:auto;
-      background:#f8f8f8; border:1px solid #ccc;
-      padding:15px; border-radius:8px;
-      box-shadow:0 2px 10px rgba(0,0,0,.2);
-      z-index:1000;
-    }
-    #ticket ul, #ticket-final ul { list-style:none; padding:0; margin:0; }
-    #ticket li, #ticket-final li {
-      display:flex; justify-content:space-between; margin-bottom:8px;
-    }
-    .remove-btn {
-      background:#bbb; border:none; color:#fff;
-      border-radius:50%; width:20px; height:20px;
-      cursor:pointer; font-size:14px;
-    }
-    .close-ticket-btn {
-      background:transparent; border:none;
-      color:#e63946; font-size:20px; cursor:pointer;
-    }
-    #ticket .confirm-btn, #formulario button {
-      margin-top:10px; background:#1d3557; color:#fff;
-      border:none; padding:8px 12px; border-radius:5px;
-      cursor:pointer; width:100%; box-sizing:border-box; font-size:14px;
-    }
-    #formulario input, #formulario textarea, #formulario select {
-      width:100%; padding:8px; margin:6px 0;
-      border-radius:5px; border:1px solid #ccc;
-      box-sizing:border-box; font-size:14px;
-    }
-    #back-btn {
-      background:transparent; border:none; font-size:18px;
-      cursor:pointer; margin-bottom:10px; color:#1d3557;
-    }
-    #total { text-align:right; font-weight:bold; }
-
-    #ticket-final {
-      position:absolute; top:0; left:0; right:0; bottom:0;
-      margin:0; padding:20px; background:#fff;
-      z-index:9999; overflow:visible;
-    }
-    #ticket-final h2 { text-align:center; margin-bottom:10px; }
-    @media print {
-      body * { display:none; }
-      #ticket-final, #ticket-final * { display:block; }
-      #ticket-final { position:static; width:100%; height:auto; }
-    }
-
-    @media (max-width:600px) {
-      .menu { flex-direction:column; align-items:center; }
-      .item { width:90%; }
-      #ticket, #formulario, #ticket-final {
-        position:static; width:95%; max-height:none; margin:20px auto;
-      }
-      .cart-icon { width:50px; height:50px; font-size:20px; }
-      .cart-icon span { width:18px; height:18px; font-size:10px; }
-      #ticket .confirm-btn, #formulario button { font-size:16px; }
-      #formulario input, #formulario textarea, #formulario select {
-        font-size:16px;
-      }
-      .qty-control button {
-        width:28px; height:28px; font-size:16px;
-      }
-      .titulo-seccion {
-        text-align: left;
-        margin-left: 20px; /* o el espacio que quieras */
-        font-size: 24px;
-        font-weight: bold;
-      }
-    }
+    body { font-family: Arial, sans-serif; background: #f8f8f8; padding: 20px; }
+    h1, h2 { margin: 10px 0; }
+    section { background: white; padding: 15px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,.1); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
+    th { background: #eee; }
+    input, select, button { margin: 4px 0; padding: 6px; }
+    button { cursor: pointer; }
   </style>
 </head>
-<body id="inicio">
+<body>
+  <h1>🍦 Gestión de Heladería</h1>
 
-  <header>
-    <h1><a href="#inicio" style="text-decoration: none; color: inherit;">Burgendon</a></h1>
-    <nav class="sections">
-      <a href="#tasty-sec">Tasty</a>
-      <a href="#cheese-burger-sec">Cheese Burger</a>
-      <a href="#cheese-bacon-sec">Cheese Bacon</a>
-      <a href="#americana">Americana</a>
-      <a href="#homenaje">Homenaje</a>
-      <a href="#burgerdon">Burgerdon</a>
-    </nav>
-  </header>
-
-  <!-- Buscador -->
-  <div id="search-container">
-    <button class="home-icon" onclick="location.href='#inicio'">🏠</button>
-    <input id="search-input" type="text" placeholder="🔍 Buscar hamburguesa..." />
-  </div>
-
-  <section id="tasty-sec">
-    <h2 class="titulo-seccion">🍔 Tasty</h2>
-    <div class="menu" id="menu">
-    <!-- 1: Tasty (Clásica) -->
-      <div class="item" id="tasty"
-         data-name="Clásica" data-price="1500"
-         data-desc="Lechuga fresca, tomate y cheddar derretido."
-         data-ingredients="Lechuga, tomate, queso cheddar, pan artesanal.">
-        <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80" alt="Clásica">
-       <p><strong>Clásica</strong><br>Lechuga, tomate y cheddar.</p>
-        <strong>$1500</strong>
-        <button class="ver-mas-btn">Ver más</button>
-        <div class="more-info">
-          <p><strong>Descripción:</strong> <span class="desc"></span></p>
-          <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-          <div class="qty-control">
-           <button class="qty-minus">-</button>
-            <span class="qty-value">1</span>
-           <button class="qty-plus">+</button>
-         </div>
-         <button class="add-to-cart-btn">Añadir al carrito</button>
-       </div>
-     </div>
-    <!-- 2: Cheese Burger -->
-    <div class="item"id="cheese-burger"
-         data-name="Cheese Burger" data-price="1950"
-         data-desc="Queso cheddar extra y doble carne."
-         data-ingredients="Carne, cheddar, queso extra, pan artesanal.">
-      <img src="Hamburguesa Doble.png">
-      <p><strong>Cheese Burger</strong><br>Doble queso cheddar.</p>
-      <strong>$1950</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
-    <!-- 3: Cheese Bacon -->
-    <div class="item" id="cheese-bacon"
-         data-name="Cheese Bacon" data-price="2200"
-         data-desc="Tocino crujiente y doble queso."
-         data-ingredients="Carne, bacon, doble cheddar, pan artesanal.">
-      <img src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80" alt="Cheese Bacon">
-      <p><strong>Cheese Bacon</strong><br>Bacon crujiente y cheddar.</p>
-      <strong>$2200</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
-    <!-- 4: Americana -->
-    <div class="item" id="americana"
-         data-name="Americana" data-price="1900"
-         data-desc="Sabores clásicos de Estados Unidos."
-         data-ingredients="Carne, lechuga, tomate, pepinillos.">
-      <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" alt="Americana">
-      <p><strong>Americana</strong><br>Clásica con pepinillos.</p>
-      <strong>$1900</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
+  <!-- Lista de productos -->
+  <section>
+    <h2>Productos</h2>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Acciones</th></tr>
+      </thead>
+      <tbody id="tablaProductos"></tbody>
+    </table>
   </section>
 
-  <section id="cheese-burger-sec">
-    <h2 class="titulo-seccion">🍔 Cheese Burger</h2>
-    <div class="menu" id="menu">
-    <!-- 1: Tasty (Clásica) -->
-      <div class="item" id="tasty"
-         data-name="Clásica" data-price="1500"
-         data-desc="Lechuga fresca, tomate y cheddar derretido."
-         data-ingredients="Lechuga, tomate, queso cheddar, pan artesanal.">
-        <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80" alt="Clásica">
-       <p><strong>Clásica</strong><br>Lechuga, tomate y cheddar.</p>
-        <strong>$1500</strong>
-        <button class="ver-mas-btn">Ver más</button>
-        <div class="more-info">
-          <p><strong>Descripción:</strong> <span class="desc"></span></p>
-          <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-          <div class="qty-control">
-           <button class="qty-minus">-</button>
-            <span class="qty-value">1</span>
-           <button class="qty-plus">+</button>
-         </div>
-         <button class="add-to-cart-btn">Añadir al carrito</button>
-       </div>
-     </div>
-    <!-- 2: Cheese Burger -->
-    <div class="item" id="cheese-burger"
-         data-name="Cheese Burger" data-price="1950"
-         data-desc="Queso cheddar extra y doble carne."
-         data-ingredients="Carne, cheddar, queso extra, pan artesanal.">
-      <img src="Hamburguesa Doble.png" alt="Cheese Burger">
-      <p><strong>Cheese Burger</strong><br>Doble queso cheddar.</p>
-      <strong>$1950</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
-    <!-- 3: Cheese Bacon -->
-    <div class="item" id="cheese-bacon"
-         data-name="Cheese Bacon" data-price="2200"
-         data-desc="Tocino crujiente y doble queso."
-         data-ingredients="Carne, bacon, doble cheddar, pan artesanal.">
-      <img src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80" alt="Cheese Bacon">
-      <p><strong>Cheese Bacon</strong><br>Bacon crujiente y cheddar.</p>
-      <strong>$2200</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
-    <!-- 4: Americana -->
-    <div class="item" id="americana"
-         data-name="Americana" data-price="1900"
-         data-desc="Sabores clásicos de Estados Unidos."
-         data-ingredients="Carne, lechuga, tomate, pepinillos.">
-      <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" alt="Americana">
-      <p><strong>Americana</strong><br>Clásica con pepinillos.</p>
-      <strong>$1900</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
+  <!-- Registrar venta -->
+  <section>
+    <h2>Registrar venta</h2>
+    <select id="ventaProducto"></select>
+    <input id="ventaCantidad" type="number" min="1" value="1">
+    <button onclick="registrarVenta()">Vender</button>
   </section>
 
-<section id="cheese-bacon-sec">
-    <h2 class="titulo-seccion">🍔 Cheese Bacon</h2>
-    <div class="menu" id="menu">
-    <!-- 1: Tasty (Clásica) -->
-      <div class="item" id="tasty"
-         data-name="Clásica" data-price="1500"
-         data-desc="Lechuga fresca, tomate y cheddar derretido."
-         data-ingredients="Lechuga, tomate, queso cheddar, pan artesanal.">
-        <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80" alt="Clásica">
-       <p><strong>Clásica</strong><br>Lechuga, tomate y cheddar.</p>
-        <strong>$1500</strong>
-        <button class="ver-mas-btn">Ver más</button>
-        <div class="more-info">
-          <p><strong>Descripción:</strong> <span class="desc"></span></p>
-          <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-          <div class="qty-control">
-           <button class="qty-minus">-</button>
-            <span class="qty-value">1</span>
-           <button class="qty-plus">+</button>
-         </div>
-         <button class="add-to-cart-btn">Añadir al carrito</button>
-       </div>
-     </div>
-    <!-- 2: Cheese Burger -->
-    <div class="item" id="cheese-burger"
-         data-name="Cheese Burger" data-price="1950"
-         data-desc="Queso cheddar extra y doble carne."
-         data-ingredients="Carne, cheddar, queso extra, pan artesanal.">
-      <img src="Hamburguesa Doble.png" alt="Cheese Burger">
-      <p><strong>Cheese Burger</strong><br>Doble queso cheddar.</p>
-      <strong>$1950</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
-    <!-- 3: Cheese Bacon -->
-    <div class="item" id="cheese-bacon"
-         data-name="Cheese Bacon" data-price="2200"
-         data-desc="Tocino crujiente y doble queso."
-         data-ingredients="Carne, bacon, doble cheddar, pan artesanal.">
-      <img src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80" alt="Cheese Bacon">
-      <p><strong>Cheese Bacon</strong><br>Bacon crujiente y cheddar.</p>
-      <strong>$2200</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
-    <!-- 4: Americana -->
-    <div class="item" id="americana"
-         data-name="Americana" data-price="1900"
-         data-desc="Sabores clásicos de Estados Unidos."
-         data-ingredients="Carne, lechuga, tomate, pepinillos.">
-      <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" alt="Americana">
-      <p><strong>Americana</strong><br>Clásica con pepinillos.</p>
-      <strong>$1900</strong>
-      <button class="ver-mas-btn">Ver más</button>
-      <div class="more-info">
-        <p><strong>Descripción:</strong> <span class="desc"></span></p>
-        <p><strong>Ingredientes:</strong> <span class="ingredients"></span></p>
-        <div class="qty-control">
-          <button class="qty-minus">-</button>
-          <span class="qty-value">1</span>
-          <button class="qty-plus">+</button>
-        </div>
-        <button class="add-to-cart-btn">Añadir al carrito</button>
-      </div>
-    </div>
+  <!-- Lista de ventas -->
+  <section>
+    <h2>Ventas</h2>
+    <p id="resumen"></p>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Total</th><th>Acciones</th></tr>
+      </thead>
+      <tbody id="tablaVentas"></tbody>
+    </table>
   </section>
-  <!-- Carrito -->
-  <button class="cart-icon" onclick="toggleTicket()">🛒<span id="cart-count">0</span></button>
 
-  <!-- Ticket -->
-  <div id="ticket">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h2>Pedido</h2>
-      <button class="close-ticket-btn" onclick="toggleTicket()">✖</button>
-    </div>
-    <ul id="pedido-lista"></ul>
-    <div id="total"></div>
-    <button class="confirm-btn" onclick="confirmarPedido()">Confirmar</button>
-  </div>
+<script>
+  // Lista fija de helados
+  const productosBase = [
+    {id:1, nombre:"Helados de agua", precio:100, stock:20},
+    {id:2, nombre:"Helados de crema", precio:150, stock:20},
+    {id:3, nombre:"Helado bonbom", precio:200, stock:15},
+    {id:4, nombre:"Helado bonbom crocante", precio:220, stock:15},
+    {id:5, nombre:"Pote 360", precio:250, stock:10},
+    {id:6, nombre:"Cono bola", precio:120, stock:25}
+  ];
 
-  <!-- Formulario -->
-  <div id="formulario">
-    <button id="back-btn" onclick="volverAlTicket()">← Volver</button>
-    <h2>Datos del cliente</h2>
-    <input type="text" id="nombre" placeholder="Nombre" required />
-    <input type="text" id="direccion" placeholder="Dirección" required />
-    <input type="text" id="calles" placeholder="Entre qué calles" required />
-    <label>Cómo va a abonar:</label>
-    <select id="pago">
-      <option value="Efectivo">Efectivo</option>
-      <option value="Transferencia">Transferencia bancaria</option>
-    </select>
-    <div id="alias-container" style="display:none;font-size:14px;margin:5px 0;color:#333;">
-      Envía a alias: <strong>burgendon123@example.com</strong>
-    </div>
-    <textarea id="aclaraciones" placeholder="Aclaraciones (opcional)" rows="2"></textarea>
-    <label>Aderezos:</label>
-    <label><input type="checkbox" name="aderezo" value="Mayonesa"> Mayonesa</label>
-    <label><input type="checkbox" name="aderezo" value="Ketchup"> Ketchup</label>
-    <label><input type="checkbox" name="aderezo" value="Mostaza"> Mostaza</label>
-    <button onclick="enviarPedido()">Confirmar pedido</button>
+  let productos = JSON.parse(localStorage.getItem("helad_prod")) || productosBase;
+  let ventas = JSON.parse(localStorage.getItem("helad_ventas")) || [];
 
-</div>
-  </div>
-
-  <!-- Ticket final imprimible -->
-  <div id="ticket-final">
-    <h2>Burgendon</h2>
-    <p><strong>Cliente:</strong> <span id="final-nombre"></span></p>
-    <p><strong>Dirección:</strong> <span id="final-direccion"></span></p>
-    <p><strong>Entre calles:</strong> <span id="final-calles"></span></p>
-    <p><strong>Pago:</strong> <span id="final-pago"></span></p>
-    <p><strong>Aclaraciones:</strong> <span id="final-aclaraciones"></span></p>
-    <p><strong>Aderezos:</strong> <span id="final-aderezos"></span></p>
-    <h3>Pedido:</h3>
-    <ul id="final-pedido"></ul>
-    <p id="final-total" style="font-weight:bold;"></p>
-  </div>
-
- <script>
-  let pedido = [];
-  const cartCount = document.getElementById("cart-count");
-  const ticket = document.getElementById("ticket");
-  const lista = document.getElementById("pedido-lista");
-  const totalDiv = document.getElementById("total");
-  const formulario = document.getElementById("formulario");
-  const pagoSelect = document.getElementById("pago");
-
-  pagoSelect.addEventListener("change", () => {
-    document.getElementById("alias-container").style.display =
-      pagoSelect.value === "Transferencia" ? "block" : "none";
-  });
-
-  // Aplicar listener a cada menú
-  document.querySelectorAll('.menu').forEach(menu => {
-    menu.addEventListener('click', e => {
-      // Mostrar / ocultar detalles ("Ver más")
-      if (e.target.classList.contains('ver-mas-btn')) {
-        const item = e.target.closest('.item');
-        const mi = item.querySelector('.more-info');
-        document.querySelectorAll('.more-info').forEach(div => {
-          if (div !== mi) div.style.display = 'none';
-        });
-        mi.style.display = mi.style.display === 'block' ? 'none' : 'block';
-        mi.querySelector('.qty-value').textContent = '1';
-      }
-
-      // Control de cantidad (+ / –)
-      if (e.target.classList.contains('qty-plus') || e.target.classList.contains('qty-minus')) {
-        const ctrl = e.target.parentElement;
-        const valEl = ctrl.querySelector('.qty-value');
-        let v = parseInt(valEl.textContent, 10);
-        if (e.target.classList.contains('qty-plus')) v++;
-        else if (v > 1) v--;
-        valEl.textContent = v;
-      }
-
-      // Añadir al carrito
-      if (e.target.classList.contains('add-to-cart-btn')) {
-        const item = e.target.closest('.item');
-        const nombre = item.dataset.name;
-        const precio = +item.dataset.price;
-        const qty = +item.querySelector('.qty-value').textContent;
-        let entry = pedido.find(p => p.nombre === nombre);
-        if (!entry) {
-          entry = { nombre, precio, qty: 0 };
-          pedido.push(entry);
-        }
-        entry.qty += qty;
-        updateCartDisplay();
-        item.querySelector('.more-info').style.display = 'none';
-        alert(`Añadiste ${qty} ${nombre}(s) al carrito.`);
-      }
-    });
-  });
-
-  function updateCartDisplay() {
-    cartCount.textContent = pedido.reduce((sum, p) => sum + p.qty, 0);
-    lista.innerHTML = '';
-    let total = 0;
-    pedido.forEach((p, i) => {
-      total += p.precio * p.qty;
-      const li = document.createElement('li');
-      li.innerHTML = `
-        ${p.nombre} x${p.qty} — $${p.precio * p.qty}
-        <button class="remove-btn" onclick="removeFromCart(${i})">×</button>
-      `;
-      lista.appendChild(li);
-    });
-    totalDiv.textContent = pedido.length ? `Total: $${total}` : '';
+  function guardar() {
+    localStorage.setItem("helad_prod", JSON.stringify(productos));
+    localStorage.setItem("helad_ventas", JSON.stringify(ventas));
   }
 
-  function removeFromCart(i) {
-    pedido.splice(i, 1);
-    updateCartDisplay();
+  function renderProductos() {
+    const tbody = document.getElementById("tablaProductos");
+    tbody.innerHTML = "";
+    productos.forEach(p => {
+      tbody.innerHTML += `<tr>
+        <td>${p.id}</td><td>${p.nombre}</td><td>$${p.precio}</td><td>${p.stock}</td>
+        <td>
+          <button onclick="ajustarStock(${p.id},1)">+1</button>
+          <button onclick="ajustarStock(${p.id},-1)">-1</button>
+        </td>
+      </tr>`;
+    });
+    // opciones en select de venta
+    const sel = document.getElementById("ventaProducto");
+    sel.innerHTML = "<option value=''>-- elegir --</option>";
+    productos.forEach(p => {
+      sel.innerHTML += `<option value='${p.id}'>${p.nombre} (stock ${p.stock}) - $${p.precio}</option>`;
+    });
   }
 
-  function toggleTicket() {
-    if (ticket.style.display === 'block') {
-      ticket.style.display = formulario.style.display = 'none';
-    } else {
-      if (!pedido.length) return alert('El carrito está vacío.');
-      ticket.style.display = 'block';
+  function renderVentas() {
+    const tbody = document.getElementById("tablaVentas");
+    tbody.innerHTML = "";
+    let total = 0, items = 0;
+    ventas.forEach(v => {
+      total += v.total; items += v.cantidad;
+      tbody.innerHTML += `<tr>
+        <td>${v.id}</td>
+        <td>${new Date(v.fecha).toLocaleString()}</td>
+        <td>${v.producto}</td>
+        <td>${v.cantidad}</td>
+        <td>$${v.total}</td>
+        <td><button onclick="eliminarVenta(${v.id})">Eliminar</button></td>
+      </tr>`;
+    });
+    document.getElementById("resumen").innerText = 
+      `Ventas: ${ventas.length} | Ítems: ${items} | Total: $${total}`;
+  }
+
+  function ajustarStock(id, delta) {
+    productos = productos.map(p=>p.id===id? {...p, stock: Math.max(0, p.stock+delta)} : p);
+    guardar(); renderProductos();
+  }
+
+  function registrarVenta() {
+    const pid = parseInt(document.getElementById("ventaProducto").value);
+    const cantidad = parseInt(document.getElementById("ventaCantidad").value);
+    if (!pid || cantidad <= 0) return alert("Datos inválidos");
+    const prod = productos.find(p=>p.id===pid);
+    if (!prod || prod.stock < cantidad) return alert("No hay stock suficiente");
+    const id = ventas.length ? Math.max(...ventas.map(v=>v.id))+1 : 1;
+    const total = prod.precio * cantidad;
+    ventas.unshift({id, producto: prod.nombre, cantidad, total, fecha: new Date().toISOString()});
+    prod.stock -= cantidad;
+    guardar(); renderProductos(); renderVentas();
+  }
+
+  function eliminarVenta(id) {
+    const v = ventas.find(x=>x.id===id);
+    if (v && confirm("¿Eliminar venta?")) {
+      // restaurar stock
+      const prod = productos.find(p=>p.nombre===v.producto);
+      if (prod) prod.stock += v.cantidad;
+      ventas = ventas.filter(x=>x.id!==id);
+      guardar(); renderProductos(); renderVentas();
     }
   }
 
-  function confirmarPedido() {
-    ticket.style.display = formulario.style.display = 'none';
-    formulario.style.display = 'block';
-  }
-
-  function volverAlTicket() {
-    formulario.style.display = ticket.style.display = 'block';
-  }
-
-  function enviarPedido() {
-    const n = document.getElementById('nombre').value.trim();
-    const d = document.getElementById('direccion').value.trim();
-    const c = document.getElementById('calles').value.trim();
-    const pago = pagoSelect.value;
-    const aclar = document.getElementById('aclaraciones').value.trim();
-    const aderezos = Array.from(
-      document.querySelectorAll('input[name="aderezo"]:checked')
-    ).map(i => i.value).join(', ') || 'Ninguno';
-
-    if (!n || !d || !c) return alert('Completa Nombre, Dirección y Entre calles.');
-
-    let mensaje = '*Pedido Burgendon*%0A';
-    mensaje += `*Cliente:* ${n}%0A`;
-    mensaje += `*Dirección:* ${d}%0A`;
-    mensaje += `*Entre calles:* ${c}%0A`;
-    mensaje += `*Pago:* ${pago}%0A`;
-    mensaje += `*Aclaraciones:* ${aclar || 'Ninguna'}%0A`;
-    mensaje += `*Aderezos:* ${aderezos}%0A%0A`;
-    mensaje += '*Detalles del pedido*%0A';
-    let total = 0;
-    pedido.forEach(p => {
-      mensaje += `${p.nombre} x${p.qty} — $${p.precio * p.qty}%0A`;
-      total += p.precio * p.qty;
-    });
-    mensaje += `%0A*Total:* $${total}`;
-
-    const numeroWhatsApp = '54911XXXXXXXX';  // tu número
-    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
-    window.location.href = url;
-  }
-</script>
-
-
+  renderProductos();
+  renderVentas();
 </script>
 </body>
 </html>
