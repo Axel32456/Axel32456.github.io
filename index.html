@@ -9,7 +9,7 @@
 /* Reset y base */
 * { margin:0; padding:0; box-sizing:border-box; }
 body { 
-  font-family: 'Courier New', Courier, monospace;  /* tipografía estilo imprenta */
+  font-family: Arial, Helvetica, sans-serif; /* tipografía moderna tipo imprenta */
   background: #fff1e6; 
   padding:20px; 
   transition: background 0.5s; 
@@ -152,20 +152,17 @@ const productosBase = [
 
 let productosCache = {};
 
-// Inicializar productos solo si la base de datos está vacía
 get(ref(db,"productos")).then(snap => {
   if(!snap.exists()){
     productosBase.forEach(p => set(ref(db,"productos/"+p.id),p));
   }
 });
 
-// Escuchar cambios en productos
 onValue(ref(db,"productos"), snapshot => {
   productosCache = snapshot.exists()? snapshot.val() : {};
   renderProductos(document.getElementById("buscador").value, productosCache);
 });
 
-// Renderizar productos
 function renderProductos(filtro="", data={}){
   const tbody = document.querySelector("#tablaProductos tbody");
   tbody.innerHTML="";
@@ -191,7 +188,6 @@ function renderProductos(filtro="", data={}){
   });
 }
 
-// Ajustar stock
 window.ajustarStock = (id,delta) => {
   const prodRef = ref(db,"productos/"+id);
   get(prodRef).then(snap=>{
@@ -202,14 +198,12 @@ window.ajustarStock = (id,delta) => {
   });
 };
 
-// Escuchar ventas
 onValue(ref(db,"ventas"), snapshot => {
   let ventas = snapshot.exists()? Object.values(snapshot.val()) : [];
-  ventas.sort((a,b) => b.fecha.localeCompare(a.fecha)); // más reciente primero
+  ventas.sort((a,b) => b.fecha.localeCompare(a.fecha));
   renderVentas(ventas);
 });
 
-// Renderizar ventas
 function renderVentas(ventas){
   const tbody = document.querySelector("#tablaVentas tbody");
   tbody.innerHTML="";
@@ -228,7 +222,6 @@ function renderVentas(ventas){
   document.getElementById("resumen").innerText=`Ventas: ${ventas.length} | Ítems: ${items} | Total: $${total}`;
 }
 
-// Registrar venta
 window.registrarVenta = () => {
   const pid = parseInt(document.getElementById("ventaProducto").value);
   const cantidad = parseInt(document.getElementById("ventaCantidad").value);
@@ -243,7 +236,6 @@ window.registrarVenta = () => {
   update(ref(db,"productos/"+pid),{stock:prod.stock-cantidad});
 };
 
-// Eliminar venta
 window.eliminarVenta = (id) => {
   get(ref(db,"ventas/"+id)).then(snap => {
     if(snap.exists() && confirm("¿Eliminar venta?")){
@@ -256,7 +248,6 @@ window.eliminarVenta = (id) => {
   });
 };
 
-// Filtrar productos
 window.filtrarProductos = () => renderProductos(document.getElementById("buscador").value,productosCache);
 </script>
 
