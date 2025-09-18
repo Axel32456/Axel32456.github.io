@@ -13,42 +13,34 @@
     th { background: #eee; }
     input, select, button { margin: 4px 0; padding: 6px; width: 100%; box-sizing: border-box; }
     button { cursor: pointer; }
-
     .flex-container { display: flex; gap: 10px; flex-wrap: wrap; }
     .flex-container > * { flex: 1 1 100px; }
+    nav a { margin: 0 10px; color: #007BFF; text-decoration: none; font-weight: bold; }
+    nav a:hover { text-decoration: underline; }
 
-    /* Media query para pantallas pequeñas */
+    /* Móvil */
     @media(max-width: 600px){
       table, thead, tbody, th, td, tr { display: block; }
       tr { margin-bottom: 10px; border-bottom: 2px solid #eee; }
       td { text-align: right; padding-left: 50%; position: relative; }
       td::before { 
         content: attr(data-label); 
-        position: absolute; 
-        left: 10px; 
-        width: 45%; 
-        text-align: left; 
-        font-weight: bold;
+        position: absolute; left: 10px; width: 45%; text-align: left; font-weight: bold;
       }
       th { display: none; }
     }
-
-    /* Enlaces internos */
-    nav a { margin: 0 10px; color: #007BFF; text-decoration: none; font-weight: bold; }
-    nav a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <h1>🍦 Gestión de Heladería</h1>
 
-  <!-- Sub-encabezados / navegación -->
   <nav>
     <a href="#productos">Ir a Productos</a>
     <a href="#venta">Registrar Venta</a>
     <a href="#ventas">Ver Ventas</a>
   </nav>
 
-  <!-- Lista de productos -->
+  <!-- Productos -->
   <section id="productos">
     <h2>Productos</h2>
     <input type="text" id="buscador" placeholder="Buscar producto..." onkeyup="filtrarProductos()">
@@ -60,7 +52,7 @@
     </table>
   </section>
 
-  <!-- Registrar venta -->
+  <!-- Venta -->
   <section id="venta">
     <h2>Registrar venta</h2>
     <div class="flex-container">
@@ -70,7 +62,7 @@
     </div>
   </section>
 
-  <!-- Lista de ventas -->
+  <!-- Ventas -->
   <section id="ventas">
     <h2>Ventas</h2>
     <p id="resumen"></p>
@@ -82,7 +74,26 @@
     </table>
   </section>
 
-<script>
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getDatabase, ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+  // 🔑 Configuración Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyD9XWBiMWR6M2b-h_1g6VP_89_L6NQjiU0",
+    authDomain: "heladeria-stock.firebaseapp.com",
+    databaseURL: "https://heladeria-stock-default-rtdb.firebaseio.com/",
+    projectId: "heladeria-stock",
+    storageBucket: "heladeria-stock.appspot.com",
+    messagingSenderId: "1044455774467",
+    appId: "1:1044455774467:web:505435d32bcf1eb0ffb136"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Productos base
   const productosBase = [
     {id:1, nombre:"Helados de agua", precio:200, stock:20},
     {id:2, nombre:"Helados de crema", precio:300, stock:20},
@@ -92,49 +103,73 @@
     {id:6, nombre:"Cono bola", precio:2000, stock:25}
   ];
 
-  let productos = productosBase; // siempre cargar precios correctos
-  let ventas = JSON.parse(localStorage.getItem("helad_ventas")) || [];
-
-  function guardar() {
-    localStorage.setItem("helad_prod", JSON.stringify(productos));
-    localStorage.setItem("helad_ventas", JSON.stringify(ventas));
+  // Inicializar productos en Firebase si está vacío
+  async function initProductos() {
+    const snapshot = await get(ref(db, "productos"));
+    if (!snapshot.exists()) {
+      productosBase.forEach(p => set(ref(db, "productos/"+p.id), p));
+    }
   }
+  initProductos();
 
-  function renderProductos(filtro = "") {
+  // Render productos
+  function renderProductos(filtro = "", data={}) {
     const tbody = document.querySelector("#tablaProductos tbody");
     tbody.innerHTML = "";
-    productos
+    Object.values(data)
       .filter(p => p.nombre.toLowerCase().includes(filtro.toLowerCase()))
       .forEach(p => {
-      tbody.innerHTML += `<tr>
-        <td data-label="ID">${p.id}</td>
-        <td data-label="Nombre">${p.nombre}</td>
-        <td data-label="Precio">$${p.precio}</td>
-        <td data-label="Stock">${p.stock}</td>
-        <td data-label="Acciones">
-          <button onclick="ajustarStock(${p.id},1)">+1</button>
-          <button onclick="ajustarStock(${p.id},-1)">-1</button>
-        </td>
-      </tr>`;
-    });
+        tbody.innerHTML += `<tr>
+          <td data-label="ID">${p.id}</td>
+          <td data-label="Nombre">${p.nombre}</td>
+          <td data-label="Precio">$${p.precio}</td>
+          <td data-label="Stock">${p.stock}</td>
+          <td data-label="Acciones">
+            <button onclick="ajustarStock(${p.id},1)">+1</button>
+            <button onclick="ajustarStock(${p.id},-1)">-1</button>
+          </td>
+        </tr>`;
+      });
 
     const sel = document.getElementById("ventaProducto");
     sel.innerHTML = "<option value=''>-- elegir --</option>";
-    productos.forEach(p => {
+    Object.values(data).forEach(p => {
       sel.innerHTML += `<option value='${p.id}'>${p.nombre} (stock ${p.stock}) - $${p.precio}</option>`;
     });
   }
 
-  function filtrarProductos() {
-    const filtro = document.getElementById("buscador").value;
-    renderProductos(filtro);
-  }
+  // Escuchar cambios en productos
+  let productosCache = {};
+  onValue(ref(db, "productos"), (snapshot) => {
+    if (snapshot.exists()) {
+      productosCache = snapshot.val();
+      renderProductos(document.getElementById("buscador").value, productosCache);
+    }
+  });
 
-  function renderVentas() {
+  // Ajustar stock
+  window.ajustarStock = (id, delta) => {
+    const prodRef = ref(db, "productos/"+id);
+    get(prodRef).then(snap => {
+      if (snap.exists()) {
+        const prod = snap.val();
+        const nuevoStock = Math.max(0, prod.stock + delta);
+        update(prodRef, {stock: nuevoStock});
+      }
+    });
+  };
+
+  // Ventas en tiempo real
+  onValue(ref(db,"ventas"), (snapshot)=>{
+    const ventas = snapshot.exists()? Object.values(snapshot.val()) : [];
+    renderVentas(ventas);
+  });
+
+  function renderVentas(ventas) {
     const tbody = document.querySelector("#tablaVentas tbody");
     tbody.innerHTML = "";
-    let total = 0, items = 0;
-    ventas.forEach(v => {
+    let total=0, items=0;
+    ventas.forEach(v=>{
       total += v.total; items += v.cantidad;
       tbody.innerHTML += `<tr>
         <td data-label="ID">${v.id}</td>
@@ -148,36 +183,41 @@
     document.getElementById("resumen").innerText = `Ventas: ${ventas.length} | Ítems: ${items} | Total: $${total}`;
   }
 
-  function ajustarStock(id, delta) {
-    productos = productos.map(p=>p.id===id? {...p, stock: Math.max(0, p.stock+delta)} : p);
-    guardar(); renderProductos(document.getElementById("buscador").value);
-  }
-
-  function registrarVenta() {
+  // Registrar venta
+  window.registrarVenta = () => {
     const pid = parseInt(document.getElementById("ventaProducto").value);
     const cantidad = parseInt(document.getElementById("ventaCantidad").value);
-    if (!pid || cantidad <= 0) return alert("Datos inválidos");
-    const prod = productos.find(p=>p.id===pid);
+    if (!pid || cantidad<=0) return alert("Datos inválidos");
+    const prod = productosCache[pid];
     if (!prod || prod.stock < cantidad) return alert("No hay stock suficiente");
-    const id = ventas.length ? Math.max(...ventas.map(v=>v.id))+1 : 1;
+    
+    const id = Date.now(); // ID único
     const total = prod.precio * cantidad;
-    ventas.unshift({id, producto: prod.nombre, cantidad, total, fecha: new Date().toISOString()});
-    prod.stock -= cantidad;
-    guardar(); renderProductos(document.getElementById("buscador").value); renderVentas();
-  }
+    const venta = {id, producto: prod.nombre, cantidad, total, fecha: new Date().toISOString()};
+    set(ref(db,"ventas/"+id), venta);
+    update(ref(db,"productos/"+pid), {stock: prod.stock-cantidad});
+  };
 
-  function eliminarVenta(id) {
-    const v = ventas.find(x=>x.id===id);
-    if (v && confirm("¿Eliminar venta?")) {
-      const prod = productos.find(p=>p.nombre===v.producto);
-      if (prod) prod.stock += v.cantidad;
-      ventas = ventas.filter(x=>x.id!==id);
-      guardar(); renderProductos(document.getElementById("buscador").value); renderVentas();
-    }
-  }
+  // Eliminar venta
+  window.eliminarVenta = (id) => {
+    get(ref(db,"ventas/"+id)).then(snap=>{
+      if (snap.exists() && confirm("¿Eliminar venta?")) {
+        const v = snap.val();
+        // restaurar stock
+        Object.values(productosCache).forEach(p=>{
+          if (p.nombre === v.producto){
+            update(ref(db,"productos/"+p.id), {stock: p.stock+v.cantidad});
+          }
+        });
+        remove(ref(db,"ventas/"+id));
+      }
+    });
+  };
 
-  renderProductos();
-  renderVentas();
+  window.filtrarProductos = () => {
+    renderProductos(document.getElementById("buscador").value, productosCache);
+  };
+
 </script>
 </body>
 </html>
