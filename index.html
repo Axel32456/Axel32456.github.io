@@ -9,7 +9,7 @@
 /* Reset y base */
 * { margin:0; padding:0; box-sizing:border-box; }
 body { 
-  font-family: Arial, Helvetica, sans-serif; /* tipografía moderna tipo imprenta */
+  font-family: 'Courier New', Courier, monospace; /* Tipografía de imprenta */
   background: #fff1e6; 
   padding:20px; 
   transition: background 0.5s; 
@@ -48,29 +48,61 @@ button { padding:12px 18px; border-radius:25px; border:none; font-weight:bold; c
 /* Tablas */
 table { width:100%; border-collapse:separate; border-spacing:0 8px; margin-top:15px; border-radius:15px; overflow:hidden;}
 th, td { padding:12px; text-align:center; transition: background 0.3s;}
-th { background:#ff6f61; color:white; font-size:15px; border-radius:15px; }
-td { background:#fff5f0; border-radius:12px;}
-tr:hover td { background:#ffd8cc; transform:scale(1.02); }
+th { 
+  background:#ff8c42;  
+  color:white; 
+  font-size:16px;  
+  border-radius:15px; 
+}
+td { 
+  background:#fff3e0;  
+  border-radius:12px;
+  font-size:17px;  
+  font-weight:500;
+}
+tr:hover td { 
+  background:#ffd9b3;  
+  transform:scale(1.02); 
+}
 
 /* Colores helados agua */
-.agua-verde td { background-color:#c8f7c5;}
-.agua-rosa td { background-color:#f7c8d1;}
-.agua-amarillo td { background-color:#f7f1c8;}
+.agua-verde td { background-color:#b8e6b8;}
+.agua-rosa td { background-color:#f7b8c8;}
+.agua-amarillo td { background-color:#f7f1b8;}
 
 /* Stock bajo */
-.stock-bajo { color:white; background-color:#e74c3c; font-weight:bold; border-radius:10px; padding:5px 10px; display:inline-block; animation: pulse 1s infinite; }
+.stock-bajo { 
+  color:white; 
+  background-color:#e74c3c; 
+  font-weight:bold; 
+  border-radius:10px; 
+  padding:6px 12px; 
+  display:inline-block; 
+  font-size:18px; 
+  animation: pulse 1s infinite; 
+}
 
 @keyframes pulse { 0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);} }
 
 /* Resumen */
-#resumen { font-weight:bold; margin-bottom:15px; font-size:16px; color:white; display:inline-block; background: linear-gradient(90deg,#ff9a8b,#ff6f61); padding:10px 20px; border-radius:25px; box-shadow:0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s; }
+#resumen { 
+  font-weight:bold; 
+  margin-bottom:15px; 
+  font-size:18px; 
+  color:white; 
+  display:inline-block; 
+  background: linear-gradient(90deg,#ffb478,#ff8c42); 
+  padding:12px 25px; 
+  border-radius:25px; 
+  box-shadow:0 4px 15px rgba(0,0,0,0.2); 
+  transition: all 0.3s; 
+}
 
 /* Iconos */
 .producto-icon { margin-right:6px; }
 
 /* Animación al vender */
 @keyframes ventaAnim { 0%{transform:translateY(0);}50%{transform:translateY(-10px);}100%{transform:translateY(0);} }
-
 .vendido { animation: ventaAnim 0.4s ease; }
 
 @media(max-width:600px){
@@ -152,17 +184,20 @@ const productosBase = [
 
 let productosCache = {};
 
+// Inicializar productos solo si la base de datos está vacía
 get(ref(db,"productos")).then(snap => {
   if(!snap.exists()){
     productosBase.forEach(p => set(ref(db,"productos/"+p.id),p));
   }
 });
 
+// Escuchar cambios en productos
 onValue(ref(db,"productos"), snapshot => {
   productosCache = snapshot.exists()? snapshot.val() : {};
   renderProductos(document.getElementById("buscador").value, productosCache);
 });
 
+// Renderizar productos
 function renderProductos(filtro="", data={}){
   const tbody = document.querySelector("#tablaProductos tbody");
   tbody.innerHTML="";
@@ -188,6 +223,7 @@ function renderProductos(filtro="", data={}){
   });
 }
 
+// Ajustar stock
 window.ajustarStock = (id,delta) => {
   const prodRef = ref(db,"productos/"+id);
   get(prodRef).then(snap=>{
@@ -198,12 +234,14 @@ window.ajustarStock = (id,delta) => {
   });
 };
 
+// Escuchar ventas
 onValue(ref(db,"ventas"), snapshot => {
   let ventas = snapshot.exists()? Object.values(snapshot.val()) : [];
-  ventas.sort((a,b) => b.fecha.localeCompare(a.fecha));
+  ventas.sort((a,b) => b.fecha.localeCompare(a.fecha)); 
   renderVentas(ventas);
 });
 
+// Renderizar ventas
 function renderVentas(ventas){
   const tbody = document.querySelector("#tablaVentas tbody");
   tbody.innerHTML="";
@@ -222,6 +260,7 @@ function renderVentas(ventas){
   document.getElementById("resumen").innerText=`Ventas: ${ventas.length} | Ítems: ${items} | Total: $${total}`;
 }
 
+// Registrar venta
 window.registrarVenta = () => {
   const pid = parseInt(document.getElementById("ventaProducto").value);
   const cantidad = parseInt(document.getElementById("ventaCantidad").value);
@@ -236,6 +275,7 @@ window.registrarVenta = () => {
   update(ref(db,"productos/"+pid),{stock:prod.stock-cantidad});
 };
 
+// Eliminar venta
 window.eliminarVenta = (id) => {
   get(ref(db,"ventas/"+id)).then(snap => {
     if(snap.exists() && confirm("¿Eliminar venta?")){
@@ -248,6 +288,7 @@ window.eliminarVenta = (id) => {
   });
 };
 
+// Filtrar productos
 window.filtrarProductos = () => renderProductos(document.getElementById("buscador").value,productosCache);
 </script>
 
