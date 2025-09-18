@@ -18,7 +18,11 @@
     nav a { margin: 0 10px; color: #007BFF; text-decoration: none; font-weight: bold; }
     nav a:hover { text-decoration: underline; }
 
-    /* Móvil */
+    /* Colores de helados de agua */
+    .agua-verde { background-color: #c8f7c5; }
+    .agua-rosa { background-color: #f7c8d1; }
+    .agua-amarillo { background-color: #f7f1c8; }
+
     @media(max-width: 600px){
       table, thead, tbody, th, td, tr { display: block; }
       tr { margin-bottom: 10px; border-bottom: 2px solid #eee; }
@@ -40,7 +44,6 @@
     <a href="#ventas">Ver Ventas</a>
   </nav>
 
-  <!-- Productos -->
   <section id="productos">
     <h2>Productos</h2>
     <input type="text" id="buscador" placeholder="Buscar producto..." onkeyup="filtrarProductos()">
@@ -52,7 +55,6 @@
     </table>
   </section>
 
-  <!-- Venta -->
   <section id="venta">
     <h2>Registrar venta</h2>
     <div class="flex-container">
@@ -62,7 +64,6 @@
     </div>
   </section>
 
-  <!-- Ventas -->
   <section id="ventas">
     <h2>Ventas</h2>
     <p id="resumen"></p>
@@ -74,12 +75,10 @@
     </table>
   </section>
 
-<!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
   import { getDatabase, ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-  // 🔑 Configuración Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyD9XWBiMWR6M2b-h_1g6VP_89_L6NQjiU0",
     authDomain: "heladeria-stock.firebaseapp.com",
@@ -93,33 +92,39 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // Productos base
+  // Productos con stock inicial correcto
   const productosBase = [
-    {id:1, nombre:"Helados de agua", precio:200, stock:20},
-    {id:2, nombre:"Helados de crema", precio:300, stock:20},
-    {id:3, nombre:"Helado bonbom", precio:700, stock:15},
-    {id:4, nombre:"Helado bonbom crocante", precio:800, stock:15},
-    {id:5, nombre:"Pote 360", precio:2000, stock:10},
-    {id:6, nombre:"Cono bola", precio:2000, stock:25}
+    {id:1, nombre:"Agua (Verde)", precio:200, stock:36, clase:"agua-verde"},
+    {id:2, nombre:"Agua (Rosa)", precio:200, stock:36, clase:"agua-rosa"},
+    {id:3, nombre:"Agua (Amarillo)", precio:200, stock:36, clase:"agua-amarillo"},
+    {id:4, nombre:"Crema", precio:300, stock:30, clase:""},
+    {id:5, nombre:"Bonbom", precio:700, stock:24, clase:""},
+    {id:6, nombre:"Bonbom Crocante", precio:800, stock:24, clase:""},
+    {id:7, nombre:"Pote", precio:2000, stock:12, clase:""},
+    {id:8, nombre:"Cono", precio:2000, stock:12, clase:""}
   ];
 
-  // Inicializar productos en Firebase si está vacío
-  async function initProductos() {
-    const snapshot = await get(ref(db, "productos"));
-    if (!snapshot.exists()) {
-      productosBase.forEach(p => set(ref(db, "productos/"+p.id), p));
-    }
-  }
-  initProductos();
+  let productosCache = {};
 
-  // Render productos
-  function renderProductos(filtro = "", data={}) {
+  // Escuchar productos y crear si está vacío
+  onValue(ref(db,"productos"), (snapshot)=>{
+    if(!snapshot.exists()){
+      productosBase.forEach(p => set(ref(db,"productos/"+p.id), p));
+      productosCache = {};
+    } else {
+      productosCache = snapshot.val();
+    }
+    renderProductos(document.getElementById("buscador").value, productosCache);
+  });
+
+  function renderProductos(filtro = "", data={}){
     const tbody = document.querySelector("#tablaProductos tbody");
-    tbody.innerHTML = "";
+    tbody.innerHTML="";
     Object.values(data)
       .filter(p => p.nombre.toLowerCase().includes(filtro.toLowerCase()))
-      .forEach(p => {
-        tbody.innerHTML += `<tr>
+      .forEach(p=>{
+        const clase = p.clase ? `class="${p.clase}"` : "";
+        tbody.innerHTML += `<tr ${clase}>
           <td data-label="ID">${p.id}</td>
           <td data-label="Nombre">${p.nombre}</td>
           <td data-label="Precio">$${p.precio}</td>
@@ -132,46 +137,34 @@
       });
 
     const sel = document.getElementById("ventaProducto");
-    sel.innerHTML = "<option value=''>-- elegir --</option>";
-    Object.values(data).forEach(p => {
+    sel.innerHTML="<option value=''>-- elegir --</option>";
+    Object.values(data).forEach(p=>{
       sel.innerHTML += `<option value='${p.id}'>${p.nombre} (stock ${p.stock}) - $${p.precio}</option>`;
     });
   }
 
-  // Escuchar cambios en productos
-  let productosCache = {};
-  onValue(ref(db, "productos"), (snapshot) => {
-    if (snapshot.exists()) {
-      productosCache = snapshot.val();
-      renderProductos(document.getElementById("buscador").value, productosCache);
-    }
-  });
-
-  // Ajustar stock
-  window.ajustarStock = (id, delta) => {
-    const prodRef = ref(db, "productos/"+id);
-    get(prodRef).then(snap => {
-      if (snap.exists()) {
+  window.ajustarStock = (id, delta)=>{
+    const prodRef = ref(db,"productos/"+id);
+    get(prodRef).then(snap=>{
+      if(snap.exists()){
         const prod = snap.val();
-        const nuevoStock = Math.max(0, prod.stock + delta);
-        update(prodRef, {stock: nuevoStock});
+        update(prodRef,{stock: Math.max(0,prod.stock+delta)});
       }
     });
   };
 
-  // Ventas en tiempo real
   onValue(ref(db,"ventas"), (snapshot)=>{
     const ventas = snapshot.exists()? Object.values(snapshot.val()) : [];
     renderVentas(ventas);
   });
 
-  function renderVentas(ventas) {
+  function renderVentas(ventas){
     const tbody = document.querySelector("#tablaVentas tbody");
-    tbody.innerHTML = "";
+    tbody.innerHTML="";
     let total=0, items=0;
     ventas.forEach(v=>{
-      total += v.total; items += v.cantidad;
-      tbody.innerHTML += `<tr>
+      total+=v.total; items+=v.cantidad;
+      tbody.innerHTML+=`<tr>
         <td data-label="ID">${v.id}</td>
         <td data-label="Fecha">${new Date(v.fecha).toLocaleString()}</td>
         <td data-label="Producto">${v.producto}</td>
@@ -180,44 +173,36 @@
         <td data-label="Acciones"><button onclick="eliminarVenta(${v.id})">Eliminar</button></td>
       </tr>`;
     });
-    document.getElementById("resumen").innerText = `Ventas: ${ventas.length} | Ítems: ${items} | Total: $${total}`;
+    document.getElementById("resumen").innerText=`Ventas: ${ventas.length} | Ítems: ${items} | Total: $${total}`;
   }
 
-  // Registrar venta
-  window.registrarVenta = () => {
+  window.registrarVenta = ()=>{
     const pid = parseInt(document.getElementById("ventaProducto").value);
     const cantidad = parseInt(document.getElementById("ventaCantidad").value);
-    if (!pid || cantidad<=0) return alert("Datos inválidos");
+    if(!pid || cantidad<=0) return alert("Datos inválidos");
     const prod = productosCache[pid];
-    if (!prod || prod.stock < cantidad) return alert("No hay stock suficiente");
-    
-    const id = Date.now(); // ID único
-    const total = prod.precio * cantidad;
+    if(!prod || prod.stock<cantidad) return alert("No hay stock suficiente");
+
+    const id = Date.now();
+    const total = prod.precio*cantidad;
     const venta = {id, producto: prod.nombre, cantidad, total, fecha: new Date().toISOString()};
     set(ref(db,"ventas/"+id), venta);
     update(ref(db,"productos/"+pid), {stock: prod.stock-cantidad});
   };
 
-  // Eliminar venta
-  window.eliminarVenta = (id) => {
+  window.eliminarVenta = (id)=>{
     get(ref(db,"ventas/"+id)).then(snap=>{
-      if (snap.exists() && confirm("¿Eliminar venta?")) {
+      if(snap.exists() && confirm("¿Eliminar venta?")){
         const v = snap.val();
-        // restaurar stock
         Object.values(productosCache).forEach(p=>{
-          if (p.nombre === v.producto){
-            update(ref(db,"productos/"+p.id), {stock: p.stock+v.cantidad});
-          }
+          if(p.nombre === v.producto) update(ref(db,"productos/"+p.id), {stock: p.stock+v.cantidad});
         });
         remove(ref(db,"ventas/"+id));
       }
     });
   };
 
-  window.filtrarProductos = () => {
-    renderProductos(document.getElementById("buscador").value, productosCache);
-  };
-
+  window.filtrarProductos = ()=> renderProductos(document.getElementById("buscador").value, productosCache);
 </script>
 </body>
 </html>
