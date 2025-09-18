@@ -1,236 +1,259 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestión Heladería</title>
-  <style>
-    /* Reset básico */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión Heladería - App</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* Reset y base */
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Comic Neue', cursive, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff1e6; padding:20px; transition: background 0.5s; }
 
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; padding: 20px; }
-    h1, h2 { margin-bottom: 20px; text-align: center; color: #333; }
-    section { background: white; padding: 20px; margin: 20px auto; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 900px; }
+/* Títulos */
+h1 { text-align:center; margin-bottom:25px; font-size:2.5em; color:#ff6f61; text-shadow:1px 1px 2px rgba(0,0,0,0.1);}
+h2 { text-align:center; margin-bottom:20px; color:#ff8575;}
 
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-    th { background: #007BFF; color: white; }
-    td { background: #fdfdfd; }
-    tr:hover td { background: #e6f0ff; transition: 0.2s; }
+/* Nav */
+nav { text-align:center; margin-bottom:25px; }
+nav a { margin:0 15px; color:#ff6f61; text-decoration:none; font-weight:bold; font-size:16px; transition:0.3s; }
+nav a:hover { color:#ff3b2e; text-decoration:underline; }
 
-    input, select, button { margin: 6px 0; padding: 10px; width: 100%; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; }
-    button { background: #007BFF; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    button:hover { background: #0056b3; }
+/* Secciones */
+section { background:#fff8f0; padding:25px; margin:20px auto; border-radius:25px; box-shadow:0 10px 25px rgba(0,0,0,0.1); max-width:950px; transition: transform 0.3s, box-shadow 0.3s;}
+section:hover { transform: translateY(-5px); box-shadow:0 15px 35px rgba(0,0,0,0.2); }
 
-    .flex-container { display: flex; gap: 15px; flex-wrap: wrap; }
-    .flex-container > * { flex: 1 1 120px; }
+/* Flex */
+.flex-container { display:flex; gap:15px; flex-wrap:wrap; }
+.flex-container > * { flex:1 1 130px; }
 
-    nav { text-align: center; margin-bottom: 30px; }
-    nav a { margin: 0 15px; color: #007BFF; text-decoration: none; font-weight: bold; font-size: 16px; }
-    nav a:hover { text-decoration: underline; }
+/* Inputs y selects */
+input, select { margin:6px 0; padding:12px; width:100%; border-radius:15px; border:1px solid #ffc9b9; font-size:16px; transition:0.2s; }
+input:focus, select:focus { border-color:#ff6f61; box-shadow:0 0 10px rgba(255,111,97,0.3); outline:none; }
 
-    /* Colores de helados de agua */
-    .agua-verde td { background-color: #c8f7c5; }
-    .agua-rosa td { background-color: #f7c8d1; }
-    .agua-amarillo td { background-color: #f7f1c8; }
+/* Botones */
+button { padding:12px 18px; border-radius:25px; border:none; font-weight:bold; cursor:pointer; transition: all 0.3s; font-size:16px; }
+.btn-vender { background: linear-gradient(45deg,#ff9a8b,#ff6f61); color:white;}
+.btn-vender:hover { transform:scale(1.1) rotate(-2deg);}
+.btn-stock-plus { background: linear-gradient(45deg,#a8e6cf,#56c596); color:white;}
+.btn-stock-plus:hover { transform:scale(1.1);}
+.btn-stock-minus { background: linear-gradient(45deg,#ffaaa5,#ff6f61); color:white;}
+.btn-stock-minus:hover { transform:scale(1.1); }
 
-    /* Stock bajo */
-    .stock-bajo { 
-      color: white; 
-      background-color: #e74c3c; 
-      font-weight: bold; 
-      border-radius: 4px;
-      padding: 3px 6px;
-      display: inline-block;
-    }
+/* Tablas */
+table { width:100%; border-collapse:separate; border-spacing:0 8px; margin-top:15px; border-radius:15px; overflow:hidden;}
+th, td { padding:12px; text-align:center; transition: background 0.3s;}
+th { background:#ff6f61; color:white; font-size:15px; border-radius:15px; }
+td { background:#fff5f0; border-radius:12px;}
+tr:hover td { background:#ffd8cc; transform:scale(1.02); }
 
-    #resumen { font-weight: bold; margin-bottom: 10px; }
+/* Colores helados agua */
+.agua-verde td { background-color:#c8f7c5;}
+.agua-rosa td { background-color:#f7c8d1;}
+.agua-amarillo td { background-color:#f7f1c8;}
 
-    @media(max-width: 600px){
-      table, thead, tbody, th, td, tr { display: block; }
-      tr { margin-bottom: 15px; border-bottom: 2px solid #eee; }
-      td { text-align: right; padding-left: 50%; position: relative; }
-      td::before { 
-        content: attr(data-label); 
-        position: absolute; left: 10px; width: 45%; text-align: left; font-weight: bold;
-      }
-      th { display: none; }
-    }
-  </style>
+/* Stock bajo */
+.stock-bajo { color:white; background-color:#e74c3c; font-weight:bold; border-radius:10px; padding:5px 10px; display:inline-block; animation: pulse 1s infinite; }
+
+@keyframes pulse { 0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);} }
+
+/* Resumen */
+#resumen { font-weight:bold; margin-bottom:15px; font-size:16px; color:white; display:inline-block; background: linear-gradient(90deg,#ff9a8b,#ff6f61); padding:10px 20px; border-radius:25px; box-shadow:0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s; }
+
+/* Iconos */
+.producto-icon { margin-right:6px; }
+
+/* Animación al vender */
+@keyframes ventaAnim { 0%{transform:translateY(0);}50%{transform:translateY(-10px);}100%{transform:translateY(0);} }
+
+.vendido { animation: ventaAnim 0.4s ease; }
+
+@media(max-width:600px){
+table,thead,tbody,th,td,tr{display:block;}
+tr{margin-bottom:15px;border-bottom:2px solid #eee;}
+td{text-align:right;padding-left:50%;position:relative;}
+td::before{content:attr(data-label);position:absolute;left:10px;width:45%;text-align:left;font-weight:bold;}
+th{display:none;}
+}
+</style>
 </head>
 <body>
-  <h1>🍦 Gestión de Heladería</h1>
+<h1>🍦 Gestión Heladería</h1>
 
-  <nav>
-    <a href="#venta">Registrar Venta</a>
-    <a href="#productos">Productos</a>
-    <a href="#ventas">Ver Ventas</a>
-  </nav>
+<nav>
+  <a href="#venta">Registrar Venta</a>
+  <a href="#productos">Productos</a>
+  <a href="#ventas">Ventas</a>
+</nav>
 
-  <!-- Vender Producto Primero -->
-  <section id="venta">
-    <h2>Registrar Venta</h2>
-    <div class="flex-container">
-      <select id="ventaProducto"></select>
-      <input id="ventaCantidad" type="number" min="1" value="1">
-      <button onclick="registrarVenta()">Vender</button>
-    </div>
-  </section>
+<section id="venta">
+<h2>Registrar Venta</h2>
+<div class="flex-container">
+<select id="ventaProducto"></select>
+<input id="ventaCantidad" type="number" min="1" value="1">
+<button class="btn-vender" onclick="registrarVenta()"><i class="fa-solid fa-cart-plus"></i> Vender</button>
+</div>
+</section>
 
-  <!-- Productos -->
-  <section id="productos">
-    <h2>Productos</h2>
-    <input type="text" id="buscador" placeholder="Buscar producto..." onkeyup="filtrarProductos()">
-    <table id="tablaProductos">
-      <thead>
-        <tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Acciones</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
+<section id="productos">
+<h2>Productos</h2>
+<input type="text" id="buscador" placeholder="Buscar producto..." onkeyup="filtrarProductos()">
+<table id="tablaProductos">
+<thead>
+<tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Acciones</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+</section>
 
-  <!-- Ventas -->
-  <section id="ventas">
-    <h2>Ventas</h2>
-    <p id="resumen"></p>
-    <table id="tablaVentas">
-      <thead>
-        <tr><th>ID</th><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Total</th><th>Acciones</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
+<section id="ventas">
+<h2>Ventas</h2>
+<p id="resumen"></p>
+<table id="tablaVentas">
+<thead>
+<tr><th>ID</th><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Total</th><th>Acciones</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+</section>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getDatabase, ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, set, get, update, onValue, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyD9XWBiMWR6M2b-h_1g6VP_89_L6NQjiU0",
-    authDomain: "heladeria-stock.firebaseapp.com",
-    databaseURL: "https://heladeria-stock-default-rtdb.firebaseio.com/",
-    projectId: "heladeria-stock",
-    storageBucket: "heladeria-stock.appspot.com",
-    messagingSenderId: "1044455774467",
-    appId: "1:1044455774467:web:505435d32bcf1eb0ffb136"
-  };
+const firebaseConfig = { 
+  apiKey:"AIzaSyD9XWBiMWR6M2b-h_1g6VP_89_L6NQjiU0", 
+  authDomain:"heladeria-stock.firebaseapp.com", 
+  databaseURL:"https://heladeria-stock-default-rtdb.firebaseio.com/", 
+  projectId:"heladeria-stock", 
+  storageBucket:"heladeria-stock.appspot.com", 
+  messagingSenderId:"1044455774467", 
+  appId:"1:1044455774467:web:505435d32bcf1eb0ffb136" 
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-  const productosBase = [
-    {id:1, nombre:"Agua (Verde)", precio:200, stock:36, clase:"agua-verde"},
-    {id:2, nombre:"Agua (Rosa)", precio:200, stock:36, clase:"agua-rosa"},
-    {id:3, nombre:"Agua (Amarillo)", precio:200, stock:36, clase:"agua-amarillo"},
-    {id:4, nombre:"Crema", precio:300, stock:30, clase:""},
-    {id:5, nombre:"Bonbom", precio:700, stock:24, clase:""},
-    {id:6, nombre:"Bonbom Crocante", precio:800, stock:24, clase:""},
-    {id:7, nombre:"Pote", precio:2000, stock:12, clase:""},
-    {id:8, nombre:"Cono", precio:2000, stock:12, clase:""}
-  ];
+const productosBase = [
+  {id:1,nombre:"Agua (Verde)",precio:200,stock:36,clase:"agua-verde",icon:"fa-solid fa-tint"},
+  {id:2,nombre:"Agua (Rosa)",precio:200,stock:36,clase:"agua-rosa",icon:"fa-solid fa-tint"},
+  {id:3,nombre:"Agua (Amarillo)",precio:200,stock:36,clase:"agua-amarillo",icon:"fa-solid fa-tint"},
+  {id:4,nombre:"Crema",precio:300,stock:30,clase:"",icon:"fa-solid fa-ice-cream"},
+  {id:5,nombre:"Bonbom",precio:700,stock:24,clase:"",icon:"fa-solid fa-candy-cane"},
+  {id:6,nombre:"Bonbom Crocante",precio:800,stock:24,clase:"",icon:"fa-solid fa-candy-cane"},
+  {id:7,nombre:"Pote",precio:2000,stock:12,clase:"",icon:"fa-solid fa-bowl-food"},
+  {id:8,nombre:"Cono",precio:2000,stock:12,clase:"",icon:"fa-solid fa-cone"}
+];
 
-  let productosCache = {};
+let productosCache = {};
 
-  async function resetProductos() {
-    for(const p of productosBase){
-      await set(ref(db,"productos/"+p.id),p);
+// Inicializar productos solo si la base de datos está vacía
+get(ref(db,"productos")).then(snap => {
+  if(!snap.exists()){
+    productosBase.forEach(p => set(ref(db,"productos/"+p.id),p));
+  }
+});
+
+// Escuchar cambios en productos
+onValue(ref(db,"productos"), snapshot => {
+  productosCache = snapshot.exists()? snapshot.val() : {};
+  renderProductos(document.getElementById("buscador").value, productosCache);
+});
+
+// Renderizar productos
+function renderProductos(filtro="", data={}){
+  const tbody = document.querySelector("#tablaProductos tbody");
+  tbody.innerHTML="";
+  Object.values(data).filter(p => p.nombre.toLowerCase().includes(filtro.toLowerCase())).forEach(p => {
+    const clase = p.clase?`class="${p.clase}"`:"";
+    let stockHTML = p.stock<=5?`<span class="stock-bajo">${p.stock}</span>`:p.stock;
+    tbody.innerHTML+=`<tr ${clase}>
+      <td data-label="ID">${p.id}</td>
+      <td data-label="Nombre"><i class="${p.icon} producto-icon"></i>${p.nombre}</td>
+      <td data-label="Precio">$${p.precio}</td>
+      <td data-label="Stock">${stockHTML}</td>
+      <td data-label="Acciones">
+        <button class="btn-stock-plus" onclick="ajustarStock(${p.id},1)"><i class="fa-solid fa-plus"></i></button>
+        <button class="btn-stock-minus" onclick="ajustarStock(${p.id},-1)"><i class="fa-solid fa-minus"></i></button>
+      </td>
+    </tr>`;
+  });
+
+  const sel = document.getElementById("ventaProducto");
+  sel.innerHTML="<option value=''>-- elegir --</option>";
+  Object.values(data).forEach(p=>{
+    sel.innerHTML+=`<option value='${p.id}'>${p.nombre} (stock ${p.stock}) - $${p.precio}</option>`;
+  });
+}
+
+// Ajustar stock
+window.ajustarStock = (id,delta) => {
+  const prodRef = ref(db,"productos/"+id);
+  get(prodRef).then(snap=>{
+    if(snap.exists()){
+      const prod = snap.val();
+      update(prodRef,{stock: Math.max(0,prod.stock+delta)});
     }
-  }
-  resetProductos();
-
-  onValue(ref(db,"productos"), (snapshot)=>{
-    productosCache = snapshot.exists()? snapshot.val() : {};
-    renderProductos(document.getElementById("buscador").value, productosCache);
   });
+};
 
-  function renderProductos(filtro="", data={}){
-    const tbody = document.querySelector("#tablaProductos tbody");
-    tbody.innerHTML="";
-    Object.values(data)
-      .filter(p => p.nombre.toLowerCase().includes(filtro.toLowerCase()))
-      .forEach(p=>{
-        const clase = p.clase ? `class="${p.clase}"` : "";
-        const stockHTML = p.stock <= 5 ? `<span class="stock-bajo">${p.stock}</span>` : p.stock;
-        tbody.innerHTML+=`<tr ${clase}>
-          <td data-label="ID">${p.id}</td>
-          <td data-label="Nombre">${p.nombre}</td>
-          <td data-label="Precio">$${p.precio}</td>
-          <td data-label="Stock">${stockHTML}</td>
-          <td data-label="Acciones">
-            <button onclick="ajustarStock(${p.id},1)">+1</button>
-            <button onclick="ajustarStock(${p.id},-1)">-1</button>
-          </td>
-        </tr>`;
+// Escuchar ventas
+onValue(ref(db,"ventas"), snapshot => {
+  let ventas = snapshot.exists()? Object.values(snapshot.val()) : [];
+  ventas.sort((a,b) => b.fecha.localeCompare(a.fecha)); // más reciente primero
+  renderVentas(ventas);
+});
+
+// Renderizar ventas
+function renderVentas(ventas){
+  const tbody = document.querySelector("#tablaVentas tbody");
+  tbody.innerHTML="";
+  let total=0, items=0;
+  ventas.forEach(v => {
+    total += v.total; items += v.cantidad;
+    tbody.innerHTML+=`<tr class="vendido">
+      <td data-label="ID">${v.id}</td>
+      <td data-label="Fecha">${new Date(v.fecha).toLocaleString()}</td>
+      <td data-label="Producto"><i class="fa-solid fa-ice-cream"></i> ${v.producto}</td>
+      <td data-label="Cantidad">${v.cantidad}</td>
+      <td data-label="Total">$${v.total}</td>
+      <td data-label="Acciones"><button class="btn-stock-minus" onclick="eliminarVenta(${v.id})"><i class="fa-solid fa-trash"></i></button></td>
+    </tr>`;
+  });
+  document.getElementById("resumen").innerText=`Ventas: ${ventas.length} | Ítems: ${items} | Total: $${total}`;
+}
+
+// Registrar venta
+window.registrarVenta = () => {
+  const pid = parseInt(document.getElementById("ventaProducto").value);
+  const cantidad = parseInt(document.getElementById("ventaCantidad").value);
+  if(!pid||cantidad<=0) return alert("Datos inválidos");
+  const prod = productosCache[pid];
+  if(!prod||prod.stock<cantidad) return alert("No hay stock suficiente");
+
+  const id = Date.now();
+  const total = prod.precio*cantidad;
+  const venta = {id, producto:prod.nombre, cantidad, total, fecha:new Date().toISOString()};
+  set(ref(db,"ventas/"+id),venta);
+  update(ref(db,"productos/"+pid),{stock:prod.stock-cantidad});
+};
+
+// Eliminar venta
+window.eliminarVenta = (id) => {
+  get(ref(db,"ventas/"+id)).then(snap => {
+    if(snap.exists() && confirm("¿Eliminar venta?")){
+      const v = snap.val();
+      Object.values(productosCache).forEach(p=>{
+        if(p.nombre===v.producto) update(ref(db,"productos/"+p.id),{stock:p.stock+v.cantidad});
       });
-
-    const sel = document.getElementById("ventaProducto");
-    sel.innerHTML="<option value=''>-- elegir --</option>";
-    Object.values(data).forEach(p=>{
-      sel.innerHTML += `<option value='${p.id}'>${p.nombre} (stock ${p.stock}) - $${p.precio}</option>`;
-    });
-  }
-
-  window.ajustarStock=(id,delta)=>{
-    const prodRef = ref(db,"productos/"+id);
-    get(prodRef).then(snap=>{
-      if(snap.exists()){
-        const prod = snap.val();
-        update(prodRef,{stock: Math.max(0,prod.stock+delta)});
-      }
-    });
-  };
-
-  onValue(ref(db,"ventas"), (snapshot)=>{
-    const ventas = snapshot.exists()? Object.values(snapshot.val()) : [];
-    ventas.sort((a,b)=> b.fecha.localeCompare(a.fecha)); // recientes arriba
-    renderVentas(ventas);
+      remove(ref(db,"ventas/"+id));
+    }
   });
+};
 
-  function renderVentas(ventas){
-    const tbody = document.querySelector("#tablaVentas tbody");
-    tbody.innerHTML="";
-    let total=0, items=0;
-    ventas.forEach(v=>{
-      total+=v.total; items+=v.cantidad;
-      tbody.innerHTML+=`<tr>
-        <td data-label="ID">${v.id}</td>
-        <td data-label="Fecha">${new Date(v.fecha).toLocaleString()}</td>
-        <td data-label="Producto">${v.producto}</td>
-        <td data-label="Cantidad">${v.cantidad}</td>
-        <td data-label="Total">$${v.total}</td>
-        <td data-label="Acciones"><button onclick="eliminarVenta(${v.id})">Eliminar</button></td>
-      </tr>`;
-    });
-    document.getElementById("resumen").innerText=`Ventas: ${ventas.length} | Ítems: ${items} | Total: $${total}`;
-  }
-
-  window.registrarVenta=()=>{
-    const pid=parseInt(document.getElementById("ventaProducto").value);
-    const cantidad=parseInt(document.getElementById("ventaCantidad").value);
-    if(!pid || cantidad<=0) return alert("Datos inválidos");
-    const prod = productosCache[pid];
-    if(!prod || prod.stock<cantidad) return alert("No hay stock suficiente");
-
-    const id=Date.now();
-    const total = prod.precio*cantidad;
-    const venta={id, producto: prod.nombre, cantidad, total, fecha: new Date().toISOString()};
-    set(ref(db,"ventas/"+id),venta);
-    update(ref(db,"productos/"+pid),{stock: prod.stock-cantidad});
-  };
-
-  window.eliminarVenta=(id)=>{
-    get(ref(db,"ventas/"+id)).then(snap=>{
-      if(snap.exists() && confirm("¿Eliminar venta?")){
-        const v=snap.val();
-        Object.values(productosCache).forEach(p=>{
-          if(p.nombre===v.producto) update(ref(db,"productos/"+p.id),{stock: p.stock+v.cantidad});
-        });
-        remove(ref(db,"ventas/"+id));
-      }
-    });
-  };
-
-  window.filtrarProductos=()=> renderProductos(document.getElementById("buscador").value, productosCache);
+// Filtrar productos
+window.filtrarProductos = () => renderProductos(document.getElementById("buscador").value,productosCache);
 </script>
+
 </body>
 </html>
