@@ -5,27 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestión Heladería</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f8f8f8; padding: 10px; margin: 0; }
-    h1, h2 { margin: 10px 0; text-align: center; }
-    section { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,.1); }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
-    th { background: #eee; }
-    input, select, button { margin: 4px 0; padding: 6px; width: 100%; box-sizing: border-box; }
-    button { cursor: pointer; }
-    .flex-container { display: flex; gap: 10px; flex-wrap: wrap; }
-    .flex-container > * { flex: 1 1 100px; }
-    nav a { margin: 0 10px; color: #007BFF; text-decoration: none; font-weight: bold; }
+    /* Reset básico */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; padding: 20px; }
+    h1, h2 { margin-bottom: 20px; text-align: center; color: #333; }
+    section { background: white; padding: 20px; margin: 20px auto; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 900px; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+    th { background: #007BFF; color: white; }
+    td { background: #fdfdfd; }
+    tr:hover td { background: #e6f0ff; transition: 0.2s; }
+
+    input, select, button { margin: 6px 0; padding: 10px; width: 100%; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; }
+    button { background: #007BFF; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    button:hover { background: #0056b3; }
+
+    .flex-container { display: flex; gap: 15px; flex-wrap: wrap; }
+    .flex-container > * { flex: 1 1 120px; }
+
+    nav { text-align: center; margin-bottom: 30px; }
+    nav a { margin: 0 15px; color: #007BFF; text-decoration: none; font-weight: bold; font-size: 16px; }
     nav a:hover { text-decoration: underline; }
 
     /* Colores de helados de agua */
-    .agua-verde { background-color: #c8f7c5; }
-    .agua-rosa { background-color: #f7c8d1; }
-    .agua-amarillo { background-color: #f7f1c8; }
+    .agua-verde td { background-color: #c8f7c5; }
+    .agua-rosa td { background-color: #f7c8d1; }
+    .agua-amarillo td { background-color: #f7f1c8; }
+
+    /* Stock bajo */
+    .stock-bajo { 
+      color: white; 
+      background-color: #e74c3c; 
+      font-weight: bold; 
+      border-radius: 4px;
+      padding: 3px 6px;
+      display: inline-block;
+    }
+
+    #resumen { font-weight: bold; margin-bottom: 10px; }
 
     @media(max-width: 600px){
       table, thead, tbody, th, td, tr { display: block; }
-      tr { margin-bottom: 10px; border-bottom: 2px solid #eee; }
+      tr { margin-bottom: 15px; border-bottom: 2px solid #eee; }
       td { text-align: right; padding-left: 50%; position: relative; }
       td::before { 
         content: attr(data-label); 
@@ -39,11 +62,22 @@
   <h1>🍦 Gestión de Heladería</h1>
 
   <nav>
-    <a href="#productos">Ir a Productos</a>
     <a href="#venta">Registrar Venta</a>
+    <a href="#productos">Productos</a>
     <a href="#ventas">Ver Ventas</a>
   </nav>
 
+  <!-- Vender Producto Primero -->
+  <section id="venta">
+    <h2>Registrar Venta</h2>
+    <div class="flex-container">
+      <select id="ventaProducto"></select>
+      <input id="ventaCantidad" type="number" min="1" value="1">
+      <button onclick="registrarVenta()">Vender</button>
+    </div>
+  </section>
+
+  <!-- Productos -->
   <section id="productos">
     <h2>Productos</h2>
     <input type="text" id="buscador" placeholder="Buscar producto..." onkeyup="filtrarProductos()">
@@ -55,15 +89,7 @@
     </table>
   </section>
 
-  <section id="venta">
-    <h2>Registrar venta</h2>
-    <div class="flex-container">
-      <select id="ventaProducto"></select>
-      <input id="ventaCantidad" type="number" min="1" value="1">
-      <button onclick="registrarVenta()">Vender</button>
-    </div>
-  </section>
-
+  <!-- Ventas -->
   <section id="ventas">
     <h2>Ventas</h2>
     <p id="resumen"></p>
@@ -92,7 +118,6 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // Productos con stock inicial correcto
   const productosBase = [
     {id:1, nombre:"Agua (Verde)", precio:200, stock:36, clase:"agua-verde"},
     {id:2, nombre:"Agua (Rosa)", precio:200, stock:36, clase:"agua-rosa"},
@@ -106,29 +131,31 @@
 
   let productosCache = {};
 
-  // Escuchar productos y crear si está vacío
-  onValue(ref(db,"productos"), (snapshot)=>{
-    if(!snapshot.exists()){
-      productosBase.forEach(p => set(ref(db,"productos/"+p.id), p));
-      productosCache = {};
-    } else {
-      productosCache = snapshot.val();
+  async function resetProductos() {
+    for(const p of productosBase){
+      await set(ref(db,"productos/"+p.id),p);
     }
+  }
+  resetProductos();
+
+  onValue(ref(db,"productos"), (snapshot)=>{
+    productosCache = snapshot.exists()? snapshot.val() : {};
     renderProductos(document.getElementById("buscador").value, productosCache);
   });
 
-  function renderProductos(filtro = "", data={}){
+  function renderProductos(filtro="", data={}){
     const tbody = document.querySelector("#tablaProductos tbody");
     tbody.innerHTML="";
     Object.values(data)
       .filter(p => p.nombre.toLowerCase().includes(filtro.toLowerCase()))
       .forEach(p=>{
         const clase = p.clase ? `class="${p.clase}"` : "";
-        tbody.innerHTML += `<tr ${clase}>
+        const stockHTML = p.stock <= 5 ? `<span class="stock-bajo">${p.stock}</span>` : p.stock;
+        tbody.innerHTML+=`<tr ${clase}>
           <td data-label="ID">${p.id}</td>
           <td data-label="Nombre">${p.nombre}</td>
           <td data-label="Precio">$${p.precio}</td>
-          <td data-label="Stock">${p.stock}</td>
+          <td data-label="Stock">${stockHTML}</td>
           <td data-label="Acciones">
             <button onclick="ajustarStock(${p.id},1)">+1</button>
             <button onclick="ajustarStock(${p.id},-1)">-1</button>
@@ -143,7 +170,7 @@
     });
   }
 
-  window.ajustarStock = (id, delta)=>{
+  window.ajustarStock=(id,delta)=>{
     const prodRef = ref(db,"productos/"+id);
     get(prodRef).then(snap=>{
       if(snap.exists()){
@@ -155,6 +182,7 @@
 
   onValue(ref(db,"ventas"), (snapshot)=>{
     const ventas = snapshot.exists()? Object.values(snapshot.val()) : [];
+    ventas.sort((a,b)=> b.fecha.localeCompare(a.fecha)); // recientes arriba
     renderVentas(ventas);
   });
 
@@ -176,33 +204,33 @@
     document.getElementById("resumen").innerText=`Ventas: ${ventas.length} | Ítems: ${items} | Total: $${total}`;
   }
 
-  window.registrarVenta = ()=>{
-    const pid = parseInt(document.getElementById("ventaProducto").value);
-    const cantidad = parseInt(document.getElementById("ventaCantidad").value);
+  window.registrarVenta=()=>{
+    const pid=parseInt(document.getElementById("ventaProducto").value);
+    const cantidad=parseInt(document.getElementById("ventaCantidad").value);
     if(!pid || cantidad<=0) return alert("Datos inválidos");
     const prod = productosCache[pid];
     if(!prod || prod.stock<cantidad) return alert("No hay stock suficiente");
 
-    const id = Date.now();
+    const id=Date.now();
     const total = prod.precio*cantidad;
-    const venta = {id, producto: prod.nombre, cantidad, total, fecha: new Date().toISOString()};
-    set(ref(db,"ventas/"+id), venta);
-    update(ref(db,"productos/"+pid), {stock: prod.stock-cantidad});
+    const venta={id, producto: prod.nombre, cantidad, total, fecha: new Date().toISOString()};
+    set(ref(db,"ventas/"+id),venta);
+    update(ref(db,"productos/"+pid),{stock: prod.stock-cantidad});
   };
 
-  window.eliminarVenta = (id)=>{
+  window.eliminarVenta=(id)=>{
     get(ref(db,"ventas/"+id)).then(snap=>{
       if(snap.exists() && confirm("¿Eliminar venta?")){
-        const v = snap.val();
+        const v=snap.val();
         Object.values(productosCache).forEach(p=>{
-          if(p.nombre === v.producto) update(ref(db,"productos/"+p.id), {stock: p.stock+v.cantidad});
+          if(p.nombre===v.producto) update(ref(db,"productos/"+p.id),{stock: p.stock+v.cantidad});
         });
         remove(ref(db,"ventas/"+id));
       }
     });
   };
 
-  window.filtrarProductos = ()=> renderProductos(document.getElementById("buscador").value, productosCache);
+  window.filtrarProductos=()=> renderProductos(document.getElementById("buscador").value, productosCache);
 </script>
 </body>
 </html>
